@@ -423,14 +423,10 @@ const PERIODS=[{
     lines:[{label:'(–) Ləğv / korrektə edilmiş qaimələr',value:-5000,basis:'İl ərzində ləğv olunan qaimələr'}],
     expectedLabel:'Gözlənilən ƏDV dövriyyəsi',actual:{label:'ƏDV bəyannaməsi dövriyyəsi',value:1245000},tol:500},
   ],
-  declare:[
-   {code:'301',label:'Ümumi gəlir',value:1198000,src:'ƏDV körpüsü + e-Qaimə'},
-   {code:'302',label:'Gəlirdən çıxılan xərclər',value:862400,src:'Təsnifat (çıxılan)'},
-   {code:'303',label:'Vergi düzəlişləri (amort.)',value:4300,src:'Amortizasiya fərqi'},
-   {code:'304',label:'Köçürülən zərər (istifadə)',value:55000,src:'Zərər körpüsü'},
-   {code:'310',label:'Vergi tutulan mənfəət',value:276300,src:'Hesablanmış',strong:true},
-   {code:'320',label:'Mənfəət vergisi (20%)',value:55260,src:'Hesablanmış',strong:true},
-  ],
+  // 310 və 320 sərt kodlanmır — buildDeclaration() komponentlərdən hesablayır (tək mənbə).
+  // taxAdjust işarəlidir: müsbət = mənfəətə əlavə (add-back), mənfi = azaltma.
+  // VERIFY: amortizasiya düzəlişinin işarəsi (mühasibat vs vergi amortizasiyası) real cədvəllə təsdiqlənməli.
+  declInput:{revenue:1198000, deductible:862400, taxAdjust:4300, lossUsed:55000, rate:0.20},
   declareNotice:'2 açıq bayraq mövcuddur (mənfəət gəliri +5 000, zərər qalığı 7 000). Bəyannamə təqdim edilməzdən əvvəl bunlar həll olunmalıdır.',
 }];
 
@@ -616,15 +612,32 @@ function viewReconcile(){
   return vhead('03','Uyğunsuzluq auditi','Hər körpü bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayır.')
     +stats+`<div class="bridges">${rs.map(bridge).join('')}</div>`;
 }
+// Mənfəət bəyannaməsi hesablaması — src/domain/declaration/builder.ts ilə eyni məntiq.
+// Vergi tutulan mənfəət = gəlir − çıxılan xərclər + vergi düzəlişi (işarəli) − istifadə olunan zərər.
+function buildDeclaration(inp){
+  const taxable=Math.max(0, inp.revenue - inp.deductible + inp.taxAdjust - inp.lossUsed);
+  const tax=Math.round(taxable*inp.rate*100)/100;
+  const adjOp=inp.taxAdjust<0?'−':'+';
+  const formula=`301 − 302 ${adjOp} 303 − 304`;
+  return {taxable,tax,cells:[
+    {code:'301',label:'Ümumi gəlir',value:inp.revenue,op:'',src:'ƏDV körpüsü + e-Qaimə'},
+    {code:'302',label:'Gəlirdən çıxılan xərclər',value:inp.deductible,op:'−',src:'Təsnifat (çıxılan)'},
+    {code:'303',label:'Vergi düzəlişləri (amortizasiya fərqi)',value:Math.abs(inp.taxAdjust),op:adjOp,src:'Mühasibat ≠ vergi amortizasiyası'},
+    {code:'304',label:'Köçürülən zərər (istifadə)',value:inp.lossUsed,op:'−',src:'Zərər körpüsü'},
+    {code:'310',label:'Vergi tutulan mənfəət',value:taxable,op:'=',src:formula,strong:true},
+    {code:'320',label:`Mənfəət vergisi (${inp.rate*100}%)`,value:tax,op:'',src:`310 × ${inp.rate*100}%`,strong:true},
+  ]};
+}
 function viewDeclare(){
-  const rows=period().declare.map(c=>`
+  const {cells}=buildDeclaration(period().declInput);
+  const rows=cells.map(c=>`
     <div class="drow" style="${c.strong?`background:${C('brassBg')}`:''}">
       <span class="dcode" style="${c.strong?'background:#fff':''}">${c.code}</span>
       <div class="dn"><div class="t">${c.label}</div>
         <div class="s">${svg(I.scan,{size:11,color:C('inkFaint')})} ${c.src}</div></div>
-      <span class="dval" style="color:${c.strong?C('brass'):C('ink')};font-weight:${c.strong?700:500}">${azn(c.value)}</span>
+      <span class="dval" style="color:${c.strong?C('brass'):C('ink')};font-weight:${c.strong?700:500}">${c.op?c.op+' ':''}${azn(c.value)}</span>
     </div>`).join('');
-  return vhead('04','Bəyannamə xanaları','Uzlaşdırılmış rəqəmlər bəyannamə xanalarına yerləşir. Hər xana mənbəyə qədər izlənə bilər.')
+  return vhead('04','Bəyannamə xanaları','Vergi tutulan mənfəət komponentlərdən avtomatik hesablanır (301 − 302 + 303 − 304). Rəqəmlər sərt yazılmır — hər xana mənbəyə qədər izlənə bilər.')
     +`<div class="card">${rows}</div>
       <div class="noticebar">${svg(I.warn,{size:15,color:C('flag')})}<p>${period().declareNotice}</p></div>`;
 }

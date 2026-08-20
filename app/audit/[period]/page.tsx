@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getPeriod } from "@/app-data/sample";
 import { BRIDGES } from "@/domain/reconciliation/bridges";
 import { runAll } from "@/domain/reconciliation/engine";
+import { buildProfitDeclaration } from "@/domain/declaration/builder";
 import { AuditWorkspace } from "./AuditWorkspace";
 
 // Dövr iş sahəsi. Körpü mühərriki server tərəfdə işləyir; nəticə client-ə ötürülür.
@@ -15,6 +16,8 @@ export default async function AuditPage({
   if (!data) notFound();
 
   const bridges = runAll(BRIDGES, data.ctx);
+  // Bəyannamə komponentlərdən hesablanır (tək mənbə) — sərt kodlanmır.
+  const declaration = buildProfitDeclaration(data.declInput, data.taxYear);
 
-  return <AuditWorkspace period={data} bridges={bridges} />;
+  return <AuditWorkspace period={data} bridges={bridges} declaration={declaration} />;
 }

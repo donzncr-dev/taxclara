@@ -41,7 +41,9 @@ export interface SamplePeriod {
   ctx: BridgeContext;
   sources: SourceRow[];
   classify: ClassifyRow[];
-  declare: DeclareCell[];
+  // Bəyannamə xanaları sərt kodlanmır — buildProfitDeclaration() bundan hesablayır (tək mənbə).
+  // taxAdjustments işarəlidir: müsbət = mənfəətə əlavə (add-back), mənfi = azaltma.
+  declInput: { revenue: number; deductible: number; taxAdjustments: number; lossUsed: number };
   declareNotice: string;
 }
 
@@ -94,14 +96,7 @@ export const PERIODS: SamplePeriod[] = [
       { name: "Cərimə/faiz (büdcə)", amount: 3100, kind: "nondeduct" },
       { name: "Amortizasiya", amount: 27400, kind: "adjust", norm: "Mühasibat ≠ vergi amortizasiyası — düzəliş" },
     ],
-    declare: [
-      { code: "301", label: "Ümumi gəlir", value: 1198000, src: "ƏDV körpüsü + e-Qaimə" },
-      { code: "302", label: "Gəlirdən çıxılan xərclər", value: 862400, src: "Təsnifat (çıxılan)" },
-      { code: "303", label: "Vergi düzəlişləri (amort.)", value: 4300, src: "Amortizasiya fərqi" },
-      { code: "304", label: "Köçürülən zərər (istifadə)", value: 55000, src: "Zərər körpüsü" },
-      { code: "310", label: "Vergi tutulan mənfəət", value: 276300, src: "Hesablanmış", strong: true },
-      { code: "320", label: "Mənfəət vergisi (20%)", value: 55260, src: "Hesablanmış", strong: true },
-    ],
+    declInput: { revenue: 1198000, deductible: 862400, taxAdjustments: 4300, lossUsed: 55000 },
     declareNotice:
       "2 açıq bayraq mövcuddur (mənfəət gəliri +5 000, zərər qalığı 7 000). Bəyannamə təqdim edilməzdən əvvəl bunlar həll olunmalıdır.",
   },

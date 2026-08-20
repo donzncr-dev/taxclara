@@ -6,6 +6,7 @@ import { Icon } from "../../_components/Icon";
 import { azn, aznSigned } from "../../_components/format";
 import type { ClassifyKind, SamplePeriod } from "@/app-data/sample";
 import type { BridgeResult } from "@/domain/reconciliation/types";
+import type { DeclarationCell } from "@/domain/declaration/builder";
 
 type StepId = "sources" | "classify" | "reconcile" | "declare";
 
@@ -76,9 +77,11 @@ function BRow({
 export function AuditWorkspace({
   period,
   bridges,
+  declaration,
 }: {
   period: SamplePeriod;
   bridges: BridgeResult[];
+  declaration: { cells: DeclarationCell[] };
 }) {
   const [active, setActive] = useState<StepId>("reconcile");
   const [confirmed, setConfirmed] = useState<Record<number, boolean>>({});
@@ -130,7 +133,7 @@ export function AuditWorkspace({
             <ClassifyView period={period} confirmed={confirmed} setConfirmed={setConfirmed} />
           )}
           {active === "reconcile" && <ReconcileView bridges={bridges} />}
-          {active === "declare" && <DeclareView period={period} />}
+          {active === "declare" && <DeclareView cells={declaration.cells} notice={period.declareNotice} />}
         </main>
       </div>
 
@@ -323,39 +326,52 @@ function BridgeCard({ b }: { b: BridgeResult }) {
   );
 }
 
-/* ── 04 Bəyannamə ── */
-function DeclareView({ period }: { period: SamplePeriod }) {
+/* ── 04 Bəyannamə ──
+   Xanalar buildProfitDeclaration() ilə hesablanır (tək mənbə). Hər sətir operatoru ilə
+   göstərilir ki, 310 = 301 − 302 ± 303 − 304 arifmetikası açıq görünsün. */
+function DeclareView({ cells, notice }: { cells: DeclarationCell[]; notice: string }) {
+  const c303 = cells.find((c) => c.code === "303");
+  const adjOp = c303 && c303.value < 0 ? "−" : "+";
+  const opFor = (code: string) =>
+    code === "302" ? "−" : code === "303" ? adjOp : code === "304" ? "−" : code === "310" ? "=" : "";
+  const strongCode = (code: string) => code === "310" || code === "320";
+  const srcFor = (c: DeclarationCell) => (c.code === "310" ? `301 − 302 ${adjOp} 303 − 304` : c.source);
   return (
     <>
       <VHead
         n="04"
         title="Bəyannamə xanaları"
-        desc="Uzlaşdırılmış rəqəmlər bəyannamə xanalarına yerləşir. Hər xana mənbəyə qədər izlənə bilər."
+        desc="Vergi tutulan mənfəət komponentlərdən avtomatik hesablanır (301 − 302 + 303 − 304). Rəqəmlər sərt yazılmır — hər xana mənbəyə qədər izlənə bilər."
       />
       <div className="card">
-        {period.declare.map((c) => (
-          <div key={c.code} className="drow" style={c.strong ? { background: "var(--brassBg)" } : undefined}>
-            <span className="dcode" style={c.strong ? { background: "#fff" } : undefined}>
-              {c.code}
-            </span>
-            <div className="dn">
-              <div className="t">{c.label}</div>
-              <div className="s">
-                <Icon name="scan" size={11} color="var(--inkFaint)" /> {c.src}
+        {cells.map((c) => {
+          const strong = strongCode(c.code);
+          const op = opFor(c.code);
+          return (
+            <div key={c.code} className="drow" style={strong ? { background: "var(--brassBg)" } : undefined}>
+              <span className="dcode" style={strong ? { background: "#fff" } : undefined}>
+                {c.code}
+              </span>
+              <div className="dn">
+                <div className="t">{c.label}</div>
+                <div className="s">
+                  <Icon name="scan" size={11} color="var(--inkFaint)" /> {srcFor(c)}
+                </div>
               </div>
+              <span
+                className="dval"
+                style={{ color: strong ? "var(--brass)" : "var(--ink)", fontWeight: strong ? 700 : 500 }}
+              >
+                {op ? op + " " : ""}
+                {azn(c.code === "303" ? Math.abs(c.value) : c.value)}
+              </span>
             </div>
-            <span
-              className="dval"
-              style={{ color: c.strong ? "var(--brass)" : "var(--ink)", fontWeight: c.strong ? 700 : 500 }}
-            >
-              {azn(c.value)}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div className="noticebar">
         <Icon name="warn" size={15} color="var(--flag)" />
-        <p>{period.declareNotice}</p>
+        <p>{notice}</p>
       </div>
     </>
   );
