@@ -10,13 +10,20 @@
     "lint": "next lint",
     "check:bridges": "tsx src/domain/reconciliation/example.ts",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "next": "^15.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
+    "next-auth": "^5.0.0-beta.25",
     "@prisma/client": "^5.20.0",
+    "bcryptjs": "^2.4.3",
     "zod": "^3.23.0",
     "xlsx": "^0.18.5",
     "papaparse": "^5.4.1"
@@ -25,6 +32,7 @@
     "typescript": "^5.6.0",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/papaparse": "^5.3.14",
     "prisma": "^5.20.0",
     "tsx": "^4.19.0"

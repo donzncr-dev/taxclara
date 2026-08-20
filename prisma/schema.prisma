@@ -38,10 +38,11 @@ model User {
   id        String   @id @default(cuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  email     String   @unique
-  name      String
-  role      Role     @default(ACCOUNTANT)
-  createdAt DateTime @default(now())
+  email        String   @unique
+  name         String
+  passwordHash String?  // Auth.js credentials — bcrypt hash (null = hələ parol təyin olunmayıb)
+  role         Role     @default(ACCOUNTANT)
+  createdAt    DateTime @default(now())
 
   // ACCOUNTANT hansı şirkətlərə baxır (izolyasiya)
   assignments CompanyAssignment[]
