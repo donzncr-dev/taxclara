@@ -161,6 +161,11 @@
   .dbtn:hover{opacity:.88;}
   .dbtn.ghost{background:transparent;color:var(--inkSoft);border-color:var(--hair);}
   .dbtn.del{background:transparent;border-color:var(--hair);padding:6px 8px;}
+  .dbtn[disabled]{opacity:.4;cursor:not-allowed;}
+  .dbtn[disabled]:hover{opacity:.4;}
+  .clsactions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;flex-wrap:wrap;}
+  .clsstatus{font-size:12.5px;font-weight:500;}
+  .clsbtns{display:flex;align-items:center;gap:8px;}
   .dsec{font-size:12px;font-weight:600;color:var(--ink);margin:22px 0 10px;}
   .dsec span{font-weight:400;color:var(--inkFaint);}
   @media(max-width:640px){
@@ -815,10 +820,21 @@ function viewClassify(){
       ${pill(cl.l,cl.c,cl.bg)}
     </div>`;
   }).join('');
+  const allDone=done===list.length, remaining=list.length-done;
+  const status=allDone
+    ? `<span style="color:${C('ok')};display:inline-flex;align-items:center;gap:6px">${svg(I.check,{size:14,color:C('ok')})} Bütün sətirlər təsdiqləndi</span>`
+    : `<span style="color:${C('review')}">${remaining} sətir təsdiq gözləyir</span>`;
   return vhead('02','Təsnifat — təklif → təsdiq','Sistem hər sətir üçün təsnifat təklif edir. Yekun qərar səndədir; norma ilə məhdudlaşan xərclər ayrıca işarələnir.')
     +`<div class="cprog"><b class="mono">${done}</b> / ${list.length} sətir təsdiqləndi</div>
       <div class="card">${rows}</div>
-      <p style="font-size:11.5px;color:${C('inkFaint')};margin-top:12px">Heç bir sətir avtomatik yekunlaşmır — təsdiq düyməsi ilə sən qərar verirsən.</p>`;
+      <div class="clsactions">
+        <div class="clsstatus">${status}</div>
+        <div class="clsbtns">
+          <button class="dbtn ghost" data-clsall>${svg(I.check,{size:13,color:C('inkSoft')})} Hamısını təsdiqlə</button>
+          <button class="dbtn" data-clsnext ${allDone?'':'disabled'}>Təsdiqlə və davam et ${svg(I.arrowR,{size:14,color:'#fff'})}</button>
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:${C('inkFaint')};margin-top:12px">Heç bir sətir avtomatik yekunlaşmır — hər sətri təsdiqləyib addımı yekunlaşdırırsan.</p>`;
 }
 function bridge(b){
   const flagged=b.flagged;
@@ -1167,6 +1183,10 @@ document.addEventListener('click',e=>{
   if(st){state.step=st.dataset.step;render();return;}
   const tg=e.target.closest('[data-toggle]');
   if(tg){const i=tg.dataset.toggle;state.confirmed[i]=!state.confirmed[i];render();return;}
+  const clsall=e.target.closest('[data-clsall]');
+  if(clsall){period().classify.forEach((_,i)=>state.confirmed[i]=true);render();return;}
+  const clsnext=e.target.closest('[data-clsnext]');
+  if(clsnext){if(clsnext.hasAttribute('disabled'))return;state.step='reconcile';window.scrollTo(0,0);render();return;}
   const pr=e.target.closest('[data-prof]');
   if(pr){const k=pr.dataset.prof;state.profile[k]=!state.profile[k];render();return;}
   const rm=e.target.closest('[data-remove]');
