@@ -400,7 +400,10 @@
     background:#fff;border:1px solid var(--hair);border-radius:9px;font-size:12.5px;}
   .mf-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:18px;margin-top:18px;
     border-top:1px solid var(--hair);flex-wrap:wrap;}
+  .mf-xmlnote{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--inkSoft);
+    background:var(--reviewBg);border:1px solid var(--review)33;border-radius:8px;padding:9px 12px;margin-top:18px;}
   .mf-navbtns,.mf-actbtns{display:flex;gap:8px;}
+  @media print{.mf-side,.mf-foot,.mf-xmlnote,.mf-back{display:none!important;} .mf-main{padding:0;}}
   .mf-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-family:inherit;cursor:pointer;
     padding:9px 18px;border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:opacity .12s;}
   .mf-btn:hover{opacity:.88;}
@@ -1327,6 +1330,61 @@ const MF_SUMMARY=[
 ];
 const MF_APPENDIX=['Vergi uçotunun məqsədləri üçün aktivlər, öhdəliklər və kapitallar barədə məlumat (Əlavə 1)','Vergi ödəyicisinin xaricdə olan bank hesabları barədə məlumat (Əlavə 2)','Vergi ödəyicisinin ümidsiz borcları barədə məlumat (Əlavə 3)','Obyektlər barədə məlumat (Əlavə 4)','Azadolmalar və güzəştlər barədə məlumat (Əlavə 5)'];
 
+/* ── XML ixracı (MENFEET_1 strukturu) ──
+   DİQQƏT: göstərici (gosterici) kodları rəsmi MENFEET_1.xsd ilə təsdiqlənməlidir.
+   Real file.xml-də daxili kodlar fərqlidir (1001/2001/3001/4001); burada formanın
+   göstərici kodları (200/221/237/1/3) istifadə olunur — XSD gələndə map ediləcək. */
+function xmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function xmlNum(n){ return (Math.round((n||0)*100)/100).toFixed(2); }
+function xmlRows(arr){ return arr.map(r=>`      <row><gosterici>${r[0]}</gosterici><mebleg>${xmlNum(r[2])}</mebleg></row>`).join('\n'); }
+function xmlRows6(arr){ return arr.map(r=>
+  `      <row><gosterici>${r[0]}</gosterici><evvel>${xmlNum(r[2])}</evvel><daxilOlan>${xmlNum(r[3])}</daxilOlan><teqdim>${xmlNum(r[4])}</teqdim><silinmis>${xmlNum(r[5])}</silinmis><legv>${xmlNum(r[6])}</legv><sonu>${xmlNum(r[7])}</sonu></row>`).join('\n'); }
+function buildMenfeetXML(){
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!-- Taxclara.az ixracı · MENFEET_1 strukturu (ilkin). DİQQƏT: göstərici kodları rəsmi MENFEET_1.xsd ilə təsdiqlənməlidir. -->
+<beyanname kodVer="MENFEET_1" lang="az" error="xeta_yoxdur" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="MENFEET_1.xsd">
+  <genel>
+    <mukellef>
+      <vergiNo>${xmlEsc(MF_GENERAL[1][1])}</vergiNo>
+      <adi>${xmlEsc(MF_GENERAL[2][1])}</adi>
+    </mukellef>
+    <beyanname>
+      <faaliyetNovuKodu>7120104</faaliyetNovuKodu>
+      <faaliyetNovuAdi>${xmlEsc('TİKİNTİ ELEMENTLƏRİNİN SINAĞI VƏ HESABLAMALARI')}</faaliyetNovuAdi>
+      <beyannameTipi>0</beyannameTipi>
+    </beyanname>
+    <donem><tip>2</tip><yil>${MF_META.dovr}</yil></donem>
+  </genel>
+  <ozel>
+    <ucotMetodu>2</ucotMetodu>
+    <gelirler>
+${xmlRows(MF_INCOME)}
+    </gelirler>
+    <xercler>
+${xmlRows(MF_EXPENSE)}
+    </xercler>
+    <vergiHesab>
+${xmlRows(MF_TAXCALC)}
+    </vergiHesab>
+    <aktivlerKapital>
+${xmlRows6(MF_BALANCE)}
+    </aktivlerKapital>
+    <azadolmalarGuzestler>
+${xmlRows(MF_EXEMPT_INC)}
+${xmlRows(MF_EXEMPT_PROFIT)}
+    </azadolmalarGuzestler>
+  </ozel>
+</beyanname>`;
+}
+function downloadMenfeetXML(){
+  const blob=new Blob([buildMenfeetXML()],{type:'application/xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='menfeet_2025_ELITE_STRUCTURES.xml';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
 /* ── rəsmi forma renderi ── */
 function mfRow2(r){ // [code,name,val,strongFlag(1=cəm,2=faiz)]
   const strong=r[3]===1, pct=r[3]===2;
@@ -1394,14 +1452,15 @@ function viewDeclForm(){
     </aside>
     <main class="mf-main">
       <div class="mf-content">${mfStepContent()}</div>
+      <div class="mf-xmlnote">${svg(I.warn,{size:13,color:C('review')})} XML ixracı ilkin strukturdadır — rəsmi göstərici kodları <b>MENFEET_1.xsd</b> ilə təsdiqləndikdən sonra byte-dəqiq olacaq.</div>
       <div class="mf-foot">
         <div class="mf-navbtns">
           ${state.declStep>1?`<button class="mf-btn ghost" data-declnav="-1">Geri</button>`:''}
           ${state.declStep<11?`<button class="mf-btn" data-declnav="1">İrəli</button>`:''}
         </div>
         <div class="mf-actbtns">
-          <button class="mf-btn ghost">${svg(I.file,{size:14,color:C('inkSoft')})} XML endir</button>
-          <button class="mf-btn ghost">${svg(I.sheet,{size:14,color:C('inkSoft')})} Çap et</button>
+          <button class="mf-btn" data-xml>${svg(I.file,{size:14,color:'#fff'})} XML endir</button>
+          <button class="mf-btn ghost" data-print>${svg(I.sheet,{size:14,color:C('inkSoft')})} Çap et</button>
         </div>
       </div>
     </main>
@@ -1704,6 +1763,10 @@ document.addEventListener('click',e=>{
   if(declstep){state.declStep=+declstep.dataset.declstep;document.querySelector('.mf-main')&&document.querySelector('.mf-main').scrollTo(0,0);render();return;}
   const declnav=e.target.closest('[data-declnav]');
   if(declnav){state.declStep=Math.max(1,Math.min(11,state.declStep+ +declnav.dataset.declnav));render();return;}
+  const dxml=e.target.closest('[data-xml]');
+  if(dxml){downloadMenfeetXML();return;}
+  const dprint=e.target.closest('[data-print]');
+  if(dprint){window.print();return;}
   const st=e.target.closest('[data-step]');
   if(st){state.step=st.dataset.step;render();return;}
   const tg=e.target.closest('[data-toggle]');
