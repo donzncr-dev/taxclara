@@ -53,6 +53,43 @@
   .period .yr{font-family:ui-monospace,monospace;font-size:12px;color:var(--inkSoft);
     padding:3px 9px;border-radius:6px;background:var(--hairSoft);}
 
+  /* dashboard (icmal) */
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .kpi{padding:15px 16px;display:flex;flex-direction:column;gap:9px;}
+  .kpi-i{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;}
+  .kpi-v{font-size:23px;font-weight:700;line-height:1;}
+  .kpi-l{font-size:11.5px;color:var(--inkFaint);}
+  .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+  .widget{overflow:hidden;}
+  .widget.wide{grid-column:1 / -1;}
+  .whead{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--hairSoft);}
+  .wt{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13.5px;}
+  .wbadge{font-size:11px;font-weight:600;background:var(--hairSoft);color:var(--inkSoft);padding:1px 8px;border-radius:999px;}
+  .wbadge.flagbadge{background:var(--flagBg);color:var(--flag);}
+  .wbody{padding:4px 0;}
+  .lrow{display:flex;align-items:center;gap:11px;padding:10px 16px;border-bottom:1px solid var(--hairSoft);}
+  .lrow:last-child{border-bottom:none;}
+  .lrow[data-open]{cursor:pointer;transition:background .12s;}
+  .lrow[data-open]:hover{background:var(--hairSoft);}
+  .sev{width:8px;height:8px;border-radius:999px;flex-shrink:0;}
+  .lmain{flex:1;min-width:0;}
+  .lt{font-size:12.5px;font-weight:500;}
+  .lc{font-size:11px;color:var(--inkFaint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lval{font-size:12.5px;font-weight:600;white-space:nowrap;}
+  .lright{text-align:right;display:flex;flex-direction:column;gap:2px;flex-shrink:0;}
+  .pipeline{display:flex;gap:8px;padding:16px;}
+  .pipe{flex:1;text-align:center;padding:12px 6px;border:1px solid var(--hair);border-radius:9px;}
+  .pipev{font-size:21px;font-weight:700;line-height:1;}
+  .pipel{font-size:10.5px;color:var(--inkFaint);margin-top:6px;}
+  .frow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;font-size:12.5px;}
+  .frow span:first-child{color:var(--inkSoft);}
+  .fsep{height:1px;background:var(--hairSoft);margin:5px 16px;}
+  .actrow{display:flex;gap:11px;padding:10px 16px;border-bottom:1px solid var(--hairSoft);}
+  .actrow:last-child{border-bottom:none;}
+  .actdot{width:7px;height:7px;border-radius:999px;background:var(--brass);margin-top:5px;flex-shrink:0;}
+  .empty{padding:16px;font-size:12px;color:var(--inkFaint);text-align:center;}
+  @media(max-width:760px){.kpirow{grid-template-columns:1fr 1fr;}.dgrid{grid-template-columns:1fr;}}
+
   /* layout */
   .cols{display:flex;gap:24px;}
   nav.steps{width:208px;flex-shrink:0;}
@@ -428,6 +465,73 @@ const PERIODS=[{
   // VERIFY: amortizasiya düzəlişinin işarəsi (mühasibat vs vergi amortizasiyası) real cədvəllə təsdiqlənməli.
   declInput:{revenue:1198000, deductible:862400, taxAdjust:4300, lossUsed:55000, rate:0.20},
   declareNotice:'2 açıq bayraq mövcuddur (mənfəət gəliri +5 000, zərər qalığı 7 000). Bəyannamə təqdim edilməzdən əvvəl bunlar həll olunmalıdır.',
+},
+{
+  id:'beta-2025', company:'Beta İnşaat MMC', voen:'1400555777',
+  periodLabel:'İllik · 2025', status:'HAZIRLANIR',
+  profile:{vat:true, withholding:true, travel:false, fixedAssets:true, exemption:false},
+  docs:[
+   {id:'prevDecl',ic:'file',tier:'core',name:'Əvvəlki il MVB / GVB',why:'Zərər qalığı və açılış',pre:{name:'2024_MVB.pdf',meta:'Zərər qalığı: 0'}},
+   {id:'ledger',ic:'sheet',tier:'core',name:'Baş kitab / 1C ixracı (Excel)',why:'Hesablar planı üzrə dövriyyələr',pre:{name:'Beta_BashKitab.xlsx',meta:'Oxundu'}},
+   {id:'bank',ic:'bank',tier:'core',name:'Bank çıxarışları / konsolidə cədvəl',why:'Bütün hesablar üzrə hərəkət'},
+   {id:'eqaimeOut',ic:'receipt',tier:'core',name:'Göndərilən e-Qaimə cədvəli',why:'Vergi sistemi · satış',pre:{name:'Beta_eQaime.xlsx',meta:'890 000 ₼'}},
+   {id:'unified',ic:'users',tier:'core',name:'Vahid Bəyannamələr (DSMF)',why:'Muzdlu iş · əməkhaqqı bazası',pre:{name:'Beta_Vahid.pdf',meta:'Fond: 142 000 ₼'}},
+   {id:'vatDecl',ic:'file',tier:'cond',cond:'vat',name:'ƏDV bəyannamələri (rüblük)',why:'ƏDV qeydiyyatı var',pre:{name:'Beta_EDV.pdf',meta:'Dövriyyə: 888 000 ₼'}},
+   {id:'amort',ic:'building',tier:'cond',cond:'fixedAssets',name:'Amortizasiya cədvəli',why:'Əsas vəsaitlər · vergi amortizasiyası'},
+  ],
+  classify:[
+   {name:'Əməkhaqqı',amount:142000,s:'deduct'},
+   {name:'Subpodrat',amount:210000,s:'deduct'},
+   {name:'Material',amount:96000,s:'deduct'},
+   {name:'Təmsilçilik',amount:5200,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır'},
+  ],
+  bridges:[
+   {id:'dsmf',title:'Əməkhaqqı fondu ↔ DSMF bazası',
+    start:{label:'Mühasibat əməkhaqqı fondu',value:142000},
+    lines:[{label:'(–) DSMF-yə cəlb olunmayan ödənişlər',value:-3000,basis:'Cəlb olunmayan ödəniş növləri'},
+           {label:'(–) MHM & xidmət müqavilələri fərqi',value:-800,basis:'Fərqli baza tətbiqi'}],
+    expectedLabel:'Gözlənilən DSMF bazası',actual:{label:'DSMF hesabatı bazası',value:135000},tol:500,
+    note:'Fond ilə DSMF bazası arasında izahsız 3 200 ₼ fərq — cəlb olunan/olunmayan ödənişləri yoxla.'},
+   {id:'eqaime',title:'e-Qaimələr ↔ ƏDV dövriyyəsi',
+    start:{label:'e-Qaimələr üzrə satış',value:890000},
+    lines:[{label:'(–) Ləğv / korrektə edilmiş qaimələr',value:-2000,basis:'İl ərzində ləğv olunan qaimələr'}],
+    expectedLabel:'Gözlənilən ƏDV dövriyyəsi',actual:{label:'ƏDV bəyannaməsi dövriyyəsi',value:888000},tol:500},
+  ],
+  declInput:{revenue:888000, deductible:453200, taxAdjust:-1800, lossUsed:0, rate:0.20},
+  declareNotice:'1 açıq bayraq (DSMF bazası fərqi 3 200 ₼). Sənədlərdən 2-si çatışmır.',
+},
+{
+  id:'qamma-2025', company:'Qamma Xidmət MMC', voen:'1400888999',
+  periodLabel:'İllik · 2025', status:'BAXIŞ',
+  profile:{vat:true, withholding:true, travel:true, fixedAssets:false, exemption:false},
+  docs:[
+   {id:'prevDecl',ic:'file',tier:'core',name:'Əvvəlki il MVB / GVB',why:'Zərər qalığı və açılış',pre:{name:'Qamma_2024.pdf',meta:'Zərər qalığı: 0'}},
+   {id:'ledger',ic:'sheet',tier:'core',name:'Baş kitab / 1C ixracı (Excel)',why:'Hesablar planı üzrə dövriyyələr',pre:{name:'Qamma_BashKitab.xlsx',meta:'Oxundu'}},
+   {id:'bank',ic:'bank',tier:'core',name:'Bank çıxarışları / konsolidə cədvəl',why:'Bütün hesablar üzrə hərəkət',pre:{name:'Qamma_Bank.pdf',meta:'128 əməliyyat'}},
+   {id:'eqaimeOut',ic:'receipt',tier:'core',name:'Göndərilən e-Qaimə cədvəli',why:'Vergi sistemi · satış',pre:{name:'Qamma_eQaime.xlsx',meta:'640 500 ₼'}},
+   {id:'unified',ic:'users',tier:'core',name:'Vahid Bəyannamələr (DSMF)',why:'Muzdlu iş · əməkhaqqı bazası'},
+   {id:'vatDecl',ic:'file',tier:'cond',cond:'vat',name:'ƏDV bəyannamələri (rüblük)',why:'ƏDV qeydiyyatı var',pre:{name:'Qamma_EDV.pdf',meta:'Dövriyyə: 637 200 ₼'}},
+   {id:'withholding',ic:'file',tier:'cond',cond:'withholding',name:'ÖMV bəyannamələri',why:'İcarə / qeyri-rezidentə ödəniş'},
+  ],
+  classify:[
+   {name:'Əməkhaqqı',amount:98000,s:'deduct'},
+   {name:'İcarə',amount:36000,s:'deduct'},
+   {name:'Kommunal',amount:9400,s:'deduct'},
+   {name:'Ezamiyyə',amount:4100,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır'},
+  ],
+  bridges:[
+   {id:'eqaime',title:'e-Qaimələr ↔ ƏDV dövriyyəsi',
+    start:{label:'e-Qaimələr üzrə satış',value:640500},
+    lines:[{label:'(–) Ləğv / korrektə edilmiş qaimələr',value:-1500,basis:'İl ərzində ləğv olunan qaimələr'}],
+    expectedLabel:'Gözlənilən ƏDV dövriyyəsi',actual:{label:'ƏDV bəyannaməsi dövriyyəsi',value:637200},tol:500,
+    note:'e-Qaimə cəmi ilə ƏDV dövriyyəsi arasında izahsız 1 800 ₼ fərq — ləğv/korrektə qaimələri yoxla.'},
+   {id:'vat',title:'ƏDV dövriyyəsi ↔ Mənfəət gəliri',
+    start:{label:'ƏDV bəyannaməsi dövriyyəsi',value:637200},
+    lines:[{label:'(–) Cari ildə alınan, gələn ilə aid avanslar',value:-12000,basis:'Avans ƏDV obyektidir, gəlir hələ tanınmayıb'}],
+    expectedLabel:'Gözlənilən mənfəət gəliri',actual:{label:'Bəyannamədəki gəlir',value:625200},tol:500},
+  ],
+  declInput:{revenue:625200, deductible:147500, taxAdjust:0, lossUsed:0, rate:0.20},
+  declareNotice:'1 açıq bayraq (e-Qaimə ↔ ƏDV fərqi 1 800 ₼). Sənədlərdən 2-si çatışmır.',
 }];
 
 const CLS={deduct:{l:'Çıxılan',c:'ok',bg:'okBg'},nondeduct:{l:'Çıxılmayan',c:'flag',bg:'flagBg'},
@@ -470,9 +574,101 @@ function brow(label,value,{strong,muted,accent}={}){
     <span class="vl" style="color:${col};font-weight:${w}">${azn(value)}</span></div>`;
 }
 
-/* ── dashboard ── */
+/* ── dashboard datası & törəmələr ── */
+// Statik nümunə (hələ modelləşməyən sahələr): son tarixlər, maliyyə, fəaliyyət.
+const DASH={
+  firm:'SM Consulting',
+  deadlines:[
+   {label:'ƏDV bəyannaməsi',company:'Alfa Ticarət MMC',date:'20 Avq',days:6},
+   {label:'ÖMV bəyannaməsi',company:'Qamma Xidmət MMC',date:'20 Avq',days:6},
+   {label:'DSMF / Vahid',company:'Beta İnşaat MMC',date:'20 Avq',days:6},
+   {label:'Mənfəət bəyannaməsi',company:'Bütün şirkətlər',date:'31 Mar 2026',days:223},
+  ],
+  finance:{taxPaid:172000, receivables:234800, payables:187600, bank:{matched:1198000, unmatched:4200}},
+  activity:[
+   {who:'Aygün Məmmədova',action:'təsnifatı təsdiqlədi',target:'Alfa · Əməkhaqqı',time:'10 dəq əvvəl'},
+   {who:'Elçin Əliyev',action:'körpünü imzaladı',target:'Alfa · DSMF körpüsü',time:'1 saat əvvəl'},
+   {who:'Aygün Məmmədova',action:'sənəd yüklədi',target:'Beta · Bank çıxarışı',time:'3 saat əvvəl'},
+   {who:'Sistem',action:'uyğunsuzluq aşkarladı',target:'Qamma · e-Qaimə körpüsü',time:'dünən'},
+  ],
+};
+// Törəmə — eyni PERIODS datasından (tək mənbə)
+function periodRequiredDocs(p){ return p.docs.filter(d=>d.tier==='core'||(d.tier==='cond'&&p.profile[d.cond])); }
+function periodMissing(p){ return periodRequiredDocs(p).filter(d=>!d.pre); }
+function allRisks(){
+  const out=[];
+  PERIODS.forEach(p=>p.bridges.map(runBridge).filter(r=>r.flagged).forEach(r=>
+    out.push({company:p.company, id:p.id, title:r.title, residual:Math.abs(r.residual)})));
+  return out.sort((a,b)=>b.residual-a.residual);
+}
+function totalMissing(){ return PERIODS.reduce((s,p)=>s+periodMissing(p).length,0); }
+function totalTaxLiability(){ return PERIODS.reduce((s,p)=>s+buildDeclaration(p.declInput).tax,0); }
+function pipeline(){
+  const map={HAZIRLANIR:{status:'Hazırlanır',tone:'inkFaint'},'BAXIŞ':{status:'Baxışda',tone:'brass'},
+    'TƏSDİQ':{status:'Təsdiq gözləyən',tone:'review'},HAZIR:{status:'Təqdim üçün hazır',tone:'ok'}};
+  return ['HAZIRLANIR','BAXIŞ','TƏSDİQ','HAZIR'].map(k=>({...map[k],count:PERIODS.filter(p=>p.status===k).length}));
+}
+function sevOf(v){ return v>=5000?'flag':v>=2000?'review':'brass'; }
+
+function wcard(title,icon,body,badge,wide){
+  return `<div class="card widget${wide?' wide':''}">
+    <div class="whead"><div class="wt">${svg(I[icon],{size:15,color:C('brass')})} ${title}</div>
+      ${badge!=null?`<span class="wbadge${badge&&badge.flag?' flagbadge':''}">${badge.text!==undefined?badge.text:badge}</span>`:''}</div>
+    <div class="wbody">${body}</div></div>`;
+}
+
+/* ── dashboard (icmal) ── */
 function viewHome(){
-  const cards=PERIODS.map(p=>{
+  const risks=allRisks();
+  const fin=DASH.finance, liability=totalTaxLiability();
+
+  const kpis=[
+   {label:'Açıq risklər',value:risks.length,icon:'warn',tone:'flag'},
+   {label:'Təsdiq gözləyən',value:PERIODS.filter(p=>p.status==='BAXIŞ'||p.status==='TƏSDİQ').length,icon:'users',tone:'review'},
+   {label:'Çatışmayan sənəd',value:totalMissing(),icon:'sheet',tone:'flag'},
+   {label:'Vergi öhdəliyi',value:azn(liability),icon:'scale',tone:'ink'},
+  ].map(k=>`<div class="card kpi">
+    <div class="kpi-i" style="background:${C(k.tone)}1a">${svg(I[k.icon],{size:18,color:C(k.tone)})}</div>
+    <div class="kpi-v mono" style="color:${C(k.tone)}">${k.value}</div>
+    <div class="kpi-l">${k.label}</div></div>`).join('');
+
+  const risksBody=risks.length?risks.map(r=>{const s=sevOf(r.residual);
+    return `<div class="lrow" data-open="${r.id}">
+      <span class="sev" style="background:${C(s)}"></span>
+      <div class="lmain"><div class="lt">${r.title}</div><div class="lc">${r.company}</div></div>
+      <span class="lval mono" style="color:${C(s)}">${azn(r.residual)}</span>
+      ${svg(I.chev,{size:14,color:C('inkFaint')})}</div>`;}).join('')
+    :`<div class="empty">Açıq risk yoxdur.</div>`;
+
+  const deadlinesBody=DASH.deadlines.map(d=>{const c=d.days<=7?'flag':d.days<=30?'review':'inkSoft';
+    return `<div class="lrow"><div class="lmain"><div class="lt">${d.label}</div><div class="lc">${d.company}</div></div>
+      <div class="lright"><span class="mono" style="font-size:12px">${d.date}</span>
+      <span style="color:${C(c)};font-size:11px;font-weight:500">${d.days} gün</span></div></div>`;}).join('');
+
+  const pipeBody=`<div class="pipeline">${pipeline().map(s=>`<div class="pipe">
+    <div class="pipev mono" style="color:${C(s.tone)}">${s.count}</div><div class="pipel">${s.status}</div></div>`).join('')}</div>`;
+
+  const missBody=PERIODS.map(p=>{const m=periodMissing(p); if(!m.length)return '';
+    return `<div class="lrow" data-open="${p.id}"><div class="lmain"><div class="lt">${p.company}</div>
+      <div class="lc">${m.map(d=>d.name).join(' · ')}</div></div>
+      <span class="wbadge flagbadge">${m.length}</span>${svg(I.chev,{size:14,color:C('inkFaint')})}</div>`;}).join('')
+    ||`<div class="empty">Bütün tələb olunan sənədlər tamdır.</div>`;
+
+  const bankOk=fin.bank.unmatched<=0;
+  const finBody=`
+    <div class="frow"><span>Vergi öhdəliyi</span><span class="mono">${azn(liability)}</span></div>
+    <div class="frow"><span>Ödənilmiş vergi</span><span class="mono" style="color:${C('ok')}">${azn(fin.taxPaid)}</span></div>
+    <div class="frow"><span>Qalıq öhdəlik</span><span class="mono" style="color:${C('flag')}">${azn(Math.max(0,liability-fin.taxPaid))}</span></div>
+    <div class="fsep"></div>
+    <div class="frow"><span>Debitor borclar</span><span class="mono">${azn(fin.receivables)}</span></div>
+    <div class="frow"><span>Kreditor borclar</span><span class="mono">${azn(fin.payables)}</span></div>
+    <div class="fsep"></div>
+    <div class="frow"><span>Bank uzlaşması</span>${bankOk?pill('uzlaşdı','ok','okBg'):pill('İzahsız '+azn(fin.bank.unmatched),'review','reviewBg')}</div>`;
+
+  const actBody=DASH.activity.map(a=>`<div class="actrow"><div class="actdot"></div>
+    <div class="lmain"><div class="lt"><b>${a.who}</b> ${a.action}</div><div class="lc">${a.target} · ${a.time}</div></div></div>`).join('');
+
+  const periodCards=PERIODS.map(p=>{
     const f=p.bridges.map(runBridge).filter(r=>r.flagged).length;
     const c=f?C('flag'):C('ok'), bg=f?C('flagBg'):C('okBg');
     return `<div class="card period" data-open="${p.id}">
@@ -482,11 +678,22 @@ function viewHome(){
       <span class="yr">${p.periodLabel}</span>
       <span class="statuschip" style="border-color:${c}44;background:${bg};color:${c}">
         ${f?svg(I.warn,{size:14,color:c}):svg(I.ok,{size:14,color:c})}<span>${f?f+' açıq bayraq':'Hazır'}</span></span>
-    </div>`;
-  }).join('');
-  return `<div class="dash-head"><div><h1>Dövrlər</h1>
-    <p>Hər bəyannamə konkret şirkət və vergi dövrünə bağlıdır. Davam etmək üçün seçin.</p></div></div>
-    <div class="periods">${cards}</div>`;
+    </div>`;}).join('');
+
+  return `<div class="dash-head"><div><h1>İcmal</h1>
+      <p>${DASH.firm} · ${PERIODS.length} aktiv dövr. Açıq risklər, son tarixlər və bəyannamə vəziyyəti bir baxışda.</p></div></div>
+    <div class="kpirow">${kpis}</div>
+    <div class="dgrid">
+      ${wcard('Açıq risklər','warn',risksBody,{text:risks.length,flag:risks.length>0},true)}
+      ${wcard('Yaxın son tarixlər','clock',deadlinesBody)}
+      ${wcard('Bəyannamə boru xətti','layers',pipeBody)}
+      ${wcard('Çatışmayan sənədlər','sheet',missBody,{text:totalMissing(),flag:totalMissing()>0})}
+      ${wcard('Maliyyə xülasəsi','scale',finBody)}
+      ${wcard('Son dəyişikliklər','refresh',actBody,null,true)}
+    </div>
+    <div class="dash-head" style="margin-bottom:12px"><div><h2 style="font-size:16px;font-weight:600">Aktiv dövrlər</h2>
+      <p>İş üçün şirkət və dövrü seçin.</p></div></div>
+    <div class="periods">${periodCards}</div>`;
 }
 
 /* ── audit views ── */
