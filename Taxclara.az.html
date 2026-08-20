@@ -341,6 +341,75 @@
     .hero h1{font-size:29px;}
     .pubnav{display:none;}
   }
+
+  /* ══ rəsmi mənfəət bəyannaməsi forması ══ */
+  body.declform-active .wrap{max-width:100%;padding:0;}
+  .mf-shell{display:flex;min-height:100vh;align-items:stretch;}
+  .mf-side{width:300px;flex-shrink:0;background:var(--ink);color:#fff;padding:18px 14px;overflow-y:auto;}
+  .mf-back{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:inherit;cursor:pointer;
+    color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 14px;margin-bottom:16px;}
+  .mf-back:hover{background:rgba(255,255,255,.16);}
+  .mf-title{font-size:18px;font-weight:600;margin-bottom:10px;}
+  .mf-status{display:inline-block;font-size:11px;font-weight:600;color:#7ee0b8;background:rgba(46,180,120,.15);
+    border:1px solid rgba(46,180,120,.4);border-radius:5px;padding:2px 8px;margin-bottom:14px;}
+  .mf-meta{font-size:11.5px;line-height:1.9;color:rgba(255,255,255,.6);margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.12);}
+  .mf-meta b{color:#fff;font-weight:600;}
+  .mf-steps{display:flex;flex-direction:column;gap:3px;}
+  .mf-step{display:flex;align-items:flex-start;gap:11px;text-align:left;background:transparent;border:none;cursor:pointer;
+    color:rgba(255,255,255,.72);font-family:inherit;font-size:12.5px;padding:9px 10px;border-radius:9px;width:100%;transition:background .12s;}
+  .mf-step:hover{background:rgba(255,255,255,.06);}
+  .mf-step.on{background:rgba(255,255,255,.13);color:#fff;}
+  .mf-num{width:22px;height:22px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;margin-top:1px;}
+  .mf-step.on .mf-num{background:#fff;color:var(--ink);}
+  .mf-lbl{flex:1;line-height:1.3;}
+  .mf-elave{display:block;font-size:10.5px;color:rgba(255,255,255,.45);margin-top:2px;}
+  .mf-main{flex:1;min-width:0;background:var(--paper);padding:22px 26px;display:flex;flex-direction:column;}
+  .mf-content{flex:1;min-width:0;}
+  .mf-sub{font-size:11px;color:var(--inkFaint);margin-bottom:2px;}
+  .mf-sub2{font-size:13.5px;font-weight:600;margin-bottom:10px;}
+  .mf-h{font-size:18px;font-weight:600;margin-bottom:16px;line-height:1.3;}
+  .mf-check{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--inkSoft);margin-bottom:20px;}
+  .mf-kv{display:grid;gap:0;margin-bottom:16px;}
+  .mf-kvrow{display:grid;grid-template-columns:280px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid var(--hairSoft);align-items:center;}
+  .mf-k{font-size:12.5px;color:var(--ink);}
+  .mf-v{font-size:12.5px;font-weight:500;}
+  .mf-vbox{font-size:12.5px;color:var(--inkSoft);background:#fff;border:1px solid var(--hair);border-radius:8px;padding:8px 12px;}
+  .mf-tablewrap{overflow-x:auto;border:1px solid var(--hair);border-radius:10px;background:#fff;}
+  .mf-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .mf-table thead th{background:var(--hairSoft);color:var(--inkSoft);font-weight:600;font-size:11px;text-align:left;
+    padding:11px 12px;position:sticky;top:0;white-space:nowrap;}
+  .mf-table th.mf-val,.mf-table td.mf-val{text-align:right;white-space:nowrap;}
+  .mf-table td{padding:10px 12px;border-top:1px solid var(--hairSoft);vertical-align:top;}
+  .mf-table tbody tr:hover,.mf-table tbody tr:hover{background:var(--paper);}
+  .mf-code{font-family:ui-monospace,monospace;color:var(--brass);font-weight:500;white-space:nowrap;width:1%;}
+  .mf-name{color:var(--ink);line-height:1.4;min-width:280px;}
+  .mf-val{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;color:var(--ink);}
+  .mf-strong{background:var(--brassBg);}
+  .mf-strong td{font-weight:700;}
+  .mf-table6 .mf-name{min-width:320px;}
+  .mf-table6 th.mf-val,.mf-table6 td.mf-val{min-width:120px;}
+  .mf-empty{padding:40px 16px;text-align:center;color:var(--inkFaint);font-size:13px;
+    border:1px dashed var(--hair);border-radius:10px;background:#fff;}
+  .mf-codebox{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;background:#3b5bdb;color:#fff;
+    padding:2px 7px;border-radius:5px;font-weight:600;}
+  .mf-sumchild .mf-name{padding-left:22px;color:var(--inkSoft);}
+  .mf-sumchild .mf-codebox{background:var(--hairSoft);color:var(--inkSoft);}
+  .mf-apps{display:grid;gap:8px;}
+  .mf-approw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;
+    background:#fff;border:1px solid var(--hair);border-radius:9px;font-size:12.5px;}
+  .mf-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:18px;margin-top:18px;
+    border-top:1px solid var(--hair);flex-wrap:wrap;}
+  .mf-navbtns,.mf-actbtns{display:flex;gap:8px;}
+  .mf-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-family:inherit;cursor:pointer;
+    padding:9px 18px;border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:opacity .12s;}
+  .mf-btn:hover{opacity:.88;}
+  .mf-btn.ghost{background:#fff;color:var(--inkSoft);border-color:var(--hair);}
+  @media(max-width:860px){
+    .mf-shell{flex-direction:column;}
+    .mf-side{width:100%;}
+    .mf-kvrow{grid-template-columns:1fr;gap:4px;}
+  }
 </style>
 </head>
 <body>
@@ -589,7 +658,7 @@ const STEPS=[
 
 /* ── state (kiçik router) ──
    view: landing · how · about · contact · login · register · app · audit */
-const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null};
+const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null,declStep:1};
 const PUBLIC_VIEWS=['landing','how','about','contact'];
 const AUTH_VIEWS=['login','register'];
 function go(v){
@@ -899,6 +968,445 @@ function buildDeclaration(inp){
   cells.push({sec:'Vergi hesabı',code:'3004',label:'Hesablanmış mənfəət vergisi',value:tax,op:'',src:`3001 × ${inp.rate*100}%`,strong:true});
   return {profit,loss,tax,cells};
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   RƏSMİ MƏNFƏƏT VERGİSİ BƏYANNAMƏSİ — tam forma (11 addım)
+   Kodlar və adlar rəsmi e-bəyannamə forması ilə birəbir.
+   Nümunə dəyərləri: "ELİTE STRUCTURES" MMC (VÖEN 1405916051, 2025).
+   Real datada bu dəyərlər ingestion + təsnifatdan formalaşacaq.
+   ══════════════════════════════════════════════════════════════════ */
+// Azərbaycan formatı: "1 019 519,00" (boşluq minlik, vergül onluq, 2 rəqəm)
+function fmt2(n){
+  const cents=Math.round(Math.abs(n)*100), int=Math.floor(cents/100), frac=cents%100;
+  const g=String(int).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return (n<0?'-':'')+g+','+String(frac).padStart(2,'0');
+}
+const MF_STEPS=[
+ {n:1,t:'Ümumi məlumat'},
+ {n:2,t:'Gəlirlər'},
+ {n:3,t:'Xərclər'},
+ {n:4,t:'Hesabat dövrü üçün verginin hesablanması'},
+ {n:5,t:'Vergi uçotunun məqsədləri üçün aktivlər, öhdəliklər və kapitallar barədə məlumat',sub:'Əlavə 1'},
+ {n:6,t:'Vergi ödəyicisinin xaricdə olan bank hesabları barədə məlumat',sub:'Əlavə 2'},
+ {n:7,t:'Vergi ödəyicisinin ümidsiz borcları barədə məlumat',sub:'Əlavə 3'},
+ {n:8,t:'Obyektlər barədə məlumat',sub:'Əlavə 4'},
+ {n:9,t:'Azadolmalar və güzəştlər barədə məlumat',sub:'Əlavə 5'},
+ {n:10,t:'Sahibkarlıq fəaliyyəti üzrə xarici ölkələrdə əldə edilmiş gəlirlər üzrə, ödənilmiş və nəzərə alınan gəlir vergisinin məbləği barədə məlumat',sub:'Əlavə 7'},
+ {n:11,t:'İcmal'},
+];
+const MF_META={dovr:'2025',bntip:'Cari',gtip:'Şəxsi kabinet',regNo:'2619170195856800',regDate:'13.01.2026',status:'Təsdiqlənib'};
+const MF_GENERAL=[
+ ['Vergi orqanının adı','İqtisadiyyat Nazirliyi yanında Dövlət Vergi Xidmətinin Bakı şəhəri Lokal Gəlirlər Baş İdarəsi'],
+ ['VÖEN','1405916051'],
+ ['Vergi ödəyicisinin tam adı','"ELİTE STRUCTURES" Məhdud Məsuliyyətli Cəmiyyəti'],
+ ['Əsas fəaliyyət növü','7120104 - TİKİNTİ ELEMENTLƏRİNİN SINAĞI VƏ HESABLAMALARI'],
+];
+const MF_GENERAL2=[
+ ['Uçot metodu','hesablama metodu'],
+ ['Vergi ödəyicisinin qrupu','Vergi Məcəlləsi çərçivəsində fəaliyyət göstərən vergi ödəyicisi'],
+ ['Sahibkarlıq subyektinin meyarı','Kiçik'],
+];
+// Gəlirlər (200–220)
+const MF_INCOME=[
+ ['200','Malların təqdim edilməsindən (işlərin görülməsindən, xidmətlərin göstərilməsindən) gəlir',1019519],
+ ['200.1','Malların təqdim edilməsindən gəlir',0],
+ ['200.1.1','Pərakəndə satışdan gəlir',0],
+ ['200.1.1.1','O cümlədən elektron ticarətdən',0],
+ ['200.1.2','Topdan satışdan gəlir',0],
+ ['200.1.2.1','O cümlədən elektron ticarətdən',0],
+ ['200.2','İşlərin görülməsindən və xidmətlərin göstərilməsindən gəlir',1019519],
+ ['200.2.1','Sığorta fəaliyyətindən gəlirlər',0],
+ ['200.2.1.1','Sığorta ehtiyatlarının qaytarılması üzrə',0],
+ ['200.2.2','İctimai iaşə fəaliyyətindən gəlirlər',0],
+ ['200.2.3','Elektron xidmətdən',0],
+ ['201','Amortizasiya olunan əsas vəsaitlərin təqdim edilməsindən gəlir',0],
+ ['202','Amortizasiya olunmayan aktivlərin təqdim edilməsindən gəlir',0],
+ ['203','Əmlakın icarəyə verilməsindən gəlir',0],
+ ['203.1','Daşınan əmlakın icarəyə verilməsindən gəlir',0],
+ ['203.2','Daşınmaz əmlakın icarəyə verilməsindən gəlir',0],
+ ['204','Digər müəssisələrin fəaliyyətindən payçı kimi iştirakdan əldə edilmiş gəlir (dividend istisna olmaqla)',0],
+ ['204.1','50% -dən çox səs hüququ verən səhmi olan müəssisələrdə iştirakdan gəlir',0],
+ ['204.2','50 faizədək səs hüququ verən səhmi olan müəssisələrdə iştirakdan gəlir',0],
+ ['205','İştirak faizinə görə birgə fəaliyyətdən əldə edilmiş gəlir',0],
+ ['205.1','Birgə fəaliyyət üzrə ümumi gəlir',0],
+ ['205.2','İştirak faizi',0],
+ ['206','Əvəzsiz əsasla təqdim edilmiş aktivlərin dəyəri',0],
+ ['207','Səhmlər, istiqrazlar və digər qiymətli kağızların, iştirak paylarının, borc öhdəliklərinin və tələblərinin satışından əldə edilmiş gəlirlər',0],
+ ['207.1','Səhmlərin və iştirak paylarının satışından əldə edilmiş gəlir (207.1 = 207.1.1 + 207.1.2)',0],
+ ['207.1.1','Nizamnamə kapitalındakı səhmlər və iştirak payları xalis aktivin səhmlərə və iştirak paylarına mütənasib dəyərindən yuxarı qiymətə təqdim edildikdə əldə edilmiş gəlir (207.1.1 = 207.1.1.3 - 207.1.1.1)',0],
+ ['207.1.1.1','Təqdim edilən səhmlərin və iştirak paylarının nominal və ya faktiki satınalma qiyməti',0],
+ ['207.1.1.2','Təqdim edilən səhmlər və iştirak payları üzrə xalis aktivlərin nizamnamə kapitalındakı səhmlərə mütənasib dəyəri',0],
+ ['207.1.1.3','Təqdim edilən səhmlərin və iştirak paylarının faktiki təqdim olunma dəyəri',0],
+ ['207.1.2','Nizamnamə kapitalındakı səhmlər və iştirak payları xalis aktivlərin səhmlərə və iştirak paylarına mütənasib dəyərindən aşağı qiymətə (güzəştli qiymətlə) təqdim edildikdə əldə edilmiş gəlir (207.1.2 = 207.1.2.2 - 207.1.2.1)',0],
+ ['207.1.2.1','Təqdim edilən səhmlərin və iştirak paylarının nominal və ya faktiki satınalma qiyməti',0],
+ ['207.1.2.2','Təqdim edilən səhmlər və iştirak payları üzrə xalis aktivlərin nizamnamə kapitalındakı səhmlərə mütənasib dəyəri',0],
+ ['207.1.2.3','Təqdim edilən səhmlərin və iştirak paylarının faktiki təqdim olunma dəyəri',0],
+ ['207.2','İstiqrazların satışından əldə edilmiş gəlir',0],
+ ['207.3','Digər qiymətli kağızların satışından əldə edilmiş gəlir',0],
+ ['207.4','Borc öhdəliklərinin satışından əldə edilmiş gəlir',0],
+ ['207.5','Borc tələblərinin satışından əldə edilmiş gəlir',0],
+ ['207.6','Kütləvi təklif edilmiş və tənzimlənən bazarda ticarətə buraxılmış səhmlərin Azərbaycan Respublikasının ərazisində, habelə ölkə hüdudlarından kənarda fond birjasında satışından əldə edilən gəlir',0],
+ ['208','İddia müddəti ötmüş və kreditorlar tərəfindən silinmiş kreditor borcları üzrə gəlir',0],
+ ['209','Uduşlar',0],
+ ['210','Royalti',0],
+ ['210.1','Azərbaycan Respublikasının hüdudlarından kənarda əldə edilmiş royaltidən gəlir',0],
+ ['211','Dividendlər',0],
+ ['211.1','Azərbaycan Respublikasında alınmış dividendlər',0],
+ ['211.2','Azərbaycan Respublikasının hüdudlarından kənarda alınmış dividendlər',0],
+ ['212','Faizlər',665.83],
+ ['212.1','Bank fəaliyyətindən faizlər',0],
+ ['212.2','Digər faiz gəlirləri',665.83],
+ ['213','Əvvəllər gəlirdən çıxılmış ehtiyatın azaldılmasından gəlir',0],
+ ['214','Xarici valyutaların manata nisbətən müsbət məzənnə fərqi',0],
+ ['215','Əvvəllər gəlirdən çıxılmış xərcin, zərərin və ya ümidsiz borcun ödənilməsindən gəlir',0],
+ ['216','Vergilərin uçotu metodunun dəyişilməsi nəticəsində yaranan keçmiş illərin gəliri',0],
+ ['217','Yuxarıdakı bəndlərdə nəzərdə tutulmayan digər gəlirlər (o cümlədən mənfəət vergisindən azad edilən gəlirlər)',0],
+ ['217.1','İxrac məqsədli neft-qaz fəaliyyəti üzrə alınmış gəlirlər',0],
+ ['217.2','Azərbaycan Respublikasının hüdudlarından kənarda əldə edilmiş gəlirlər',0],
+ ['217.3','Transfer qiymətlərin tətbiq edilməsindən əldə edilmiş gəlir',0],
+ ['217.4','Azərbaycan Respublikasının rezidenti hesab edilən şəxsin nəzarət olunan xarici müəssisədən əldə edilən vergi tutulan gəlirləri',0],
+ ['217.5','Tibb müəssisələri tərəfindən dövlət büdcəsinə ƏDV hesablanarkən bu Məcəllənin 174.5-ci maddəsinə əsasən ƏDV məbləğinin azaldılmasından əldə edilən gəlirlər',0],
+ ['218','ÜMUMİ GƏLİRLƏR',1020184.83,1],
+ ['219','Ümumi gəlirdən çıxılmalar',0],
+ ['219.1','Rezident tərəfindən ödəmə mənbəyində vergiyə cəlb olunan dividend gəlirləri',0],
+ ['219.2','Təqdim olunmuş (amortizasiya olunmayan) aktivlərin qalıq dəyəri',0],
+ ['219.3','Xarici valyutaların manata nisbətən məzənnəsinin dəyişməsindən yaranan mənfi fərq',0],
+ ['219.4','Gəlirlər üzrə azadolmalar və güzəştlər (sətrin təsnifatı 5 №-li Əlavə ilə təqdim olunur)',0],
+ ['219.5','Bina tikintisi fəaliyyəti üzrə dövlətə ayrılan yaşayış və qeyri-yaşayış sahələrinin təqdim edilməsi üzrə gəlir',0],
+ ['219.6','Dəqiqləşdirilən əməliyyatlar hesabına azaldılan gəlir',0],
+ ['219.7','Vəkil qurumlarının tərkibində fəaliyyət göstərən vəkillər tərəfindən göstərilən vəkillik fəaliyyəti ilə bağlı vəkil qurumlarına daxil olan ödənişlərin vəkillərə ödənilən hissəsi və mediasiya təşkilatları tərəfindən mülki-hüquqi müqavilələr əsasında mediasiya təşkilatına daxil olan haqların və mükafatların mediatorlara ödənilən hissəsi',0],
+ ['220','Çıxılmalardan sonra ÜMUMİ GƏLİR',1020184.83,1],
+];
+// Xərclər (221–236)
+const MF_EXPENSE=[
+ ['221','Malların təqdim edilməsi, iş görülməsi və xidmət göstərilməsi üzrə xərclər',805038.59],
+ ['221.1','Əmək haqqı və ona bərabər tutulan ödəmələr',281942.79],
+ ['221.1.1','Əcnəbi işçilər üzrə',30040.37],
+ ['221.1.2','Yerli işçilər üzrə',251902.42],
+ ['221.2','Sosial sığorta haqları',51162.62],
+ ['221.3','Xammal və materiallar',3541.05],
+ ['221.4','Malın dəyəri',0],
+ ['221.5','İcarə haqqı',24000],
+ ['221.5.1','Rezident şəxslər üzrə icarə haqqı',24000],
+ ['221.5.1.1','Hüquqi şəxslər üzrə',0],
+ ['221.5.1.2','Fiziki şəxslər üzrə',24000],
+ ['221.5.2','Qeyri rezidentlər üzrə icarə haqqı',0],
+ ['221.6','Nazirlər Kabinetinin qərarı ilə müəyyən edilmiş ezamiyyə xərclərinin məbləğləri',0],
+ ['221.7','Enerji xərcləri',0],
+ ['221.8','Qaz xərcləri',465.50],
+ ['221.9','Yanacaq xərcləri',9181.32],
+ ['221.10','Su və kanalizasiya xərcləri',0],
+ ['221.11','Rabitə xərcləri',5041.08],
+ ['221.12','Mühafizə xərcləri',0],
+ ['221.13','Bank xidməti üzrə xərclər',4511.43],
+ ['221.14','Reklam xərcləri',0],
+ ['221.15','Bilavasitə malların təqdim edilməsi (işlərin görülməsi, xidmətlərin göstərilməsi) ilə bağlı sair xərclər',425192.80],
+ ['221.16','Qanunvericiliklə müəyyən edilmiş təbii itki normaları daxilində zayolmadan əmələ gələn itkilər, təbii itki normaları daxilində xarabolmalar və bu kimi əksikgəlmələr',0],
+ ['221.17','VM-nin 119.2-ci maddəsinə əsasən qanunvericiliklə müəyyən edilmiş normalar daxilində çəkilən xərclər',0],
+ ['222','Borca görə faizlər və onunla bağlı olan xərclər',425.04],
+ ['222.1','Rezident üzrə faizlər',0],
+ ['222.2','Faizlərlə əlaqədar xərclər və ayırmalar',425.04],
+ ['222.2.1','Aktivlər üzrə mümkün zərərlərin ödənilməsi üçün xüsusi ehtiyatın yaradılmasına ayırmalar',0],
+ ['222.2.2','Faizlərlə bağlı digər xərclər',425.04],
+ ['222.3','Qeyri rezident üzrə faizlər',0],
+ ['223','Royalti',0],
+ ['223.1','Rezident üzrə royalti',0],
+ ['223.2','Qeyri rezident üzrə royalti',0],
+ ['224','Xarici hüquqi şəxsin baş (əsas) ofis tərəfindən çəkilmiş və Azərbaycan Respublikası ilə birbaşa bağlı xərclər',0],
+ ['225','Ümidsiz borclar (sətrin təsnifatı 3 №-li Əlavə ilə təqdim olunur)',0],
+ ['226','Elmi tədqiqat, layihə axtarış və təcrübə konstruktor işlərinə çəkilən xərclər',0],
+ ['227','Amortizasiya ayırmaları, əsas vəsaitlərin təqdim edilməsi və ləğvi üzrə gəlirdən çıxılan xərclər',72604.70],
+ ['227.1','Torpaqların yaxşılaşdırılması üzrə kapitallaşdırılmış xərclər, binalar, tikililər və qurğular üzrə hesablanmış amortizasiya',0],
+ ['227.2','Maşınlar və avadanlıq üzrə hesablanmış amortizasiya',10607.36],
+ ['227.3','Nəqliyyat vasitələri üzrə hesablanmış amortizasiya',53119.35],
+ ['227.4','İş heyvanları üzrə hesablanmış amortizasiya',0],
+ ['227.5','Geoloji kəşfiyyat işlərinə və təbii ehtiyatların hasilatına hazırlıq işlərinə çəkilən xərclər üzrə hesablanmış amortizasiya',0],
+ ['227.6','Qeyri-maddi aktivlər üzrə hesablanmış amortizasiya',0],
+ ['227.6.1','İstifadə müddəti məlum olmayan qeyri-maddi aktivlər üzrə hesablanmış amortizasiya',0],
+ ['227.6.2','İstifadə müddəti məlum olan qeyri-maddi aktivlər üzrə hesablanmış amortizasiya',0],
+ ['227.7','Digər əsas vəsaitlər üzrə hesablanmış amortizasiya',3978.35],
+ ['227.8','VM-nin 114.6-cı maddəsinə əsasən çıxılan əsas vəsaitlərin qalıq dəyərinin məbləği',0],
+ ['227.9','Təqdim edilmiş əsas vəsaitlərin qalıq dəyəri',0],
+ ['227.10','Yüksək texnologiyalar məhsulu olan hesablama texnikası üzrə hesablanmış amortizasiya',4899.64],
+ ['227.11','VM-nin 115.6-1-ci maddəsinə əsasən hesablanmış amortizasiya',0],
+ ['228','Təmir xərcləri',723.04],
+ ['228.1','Binalar, tikililər və qurğular üzrə hesablanmış təmir xərcləri',0],
+ ['228.2','Maşınlar və avadanlıq üzrə hesablanmış təmir xərcləri',42.36],
+ ['228.3','Nəqliyyat vasitələri (yük avtomobilləri istisna olmaqla) üzrə hesablanmış təmir xərcləri',680.68],
+ ['228.4','Digər əsas vəsaitlər üzrə hesablanmış təmir xərcləri',0],
+ ['228.5','İcarəyə götürülmüş əsas vəsaitlərin təmir xərcləri',0],
+ ['228.6','Yüksək texnologiyalar məhsulu olan hesablama texnikası üzrə hesablanmış təmir xərcləri',0],
+ ['228.7','Yük avtomobillərinin təmir xərcləri',0],
+ ['229','Nəqliyyat xərcləri',164.84],
+ ['229.1','Rezident üzrə nəqliyyat xərcləri',164.84],
+ ['229.2','Qeyri rezident üzrə nəqliyyat xərcləri',0],
+ ['230','Sığorta üzrə xərclər',5599.62],
+ ['230.1','Sığorta fəaliyyəti üzrə xərclər',0],
+ ['230.1.1','Sığorta ehtiyatlarına ayırmalar',0],
+ ['230.1.2','Təkrarsığortaya verilmiş sığorta haqqları (mükafatları)',0],
+ ['230.1.3','Sığorta fəaliyyəti üzrə sair xərclər',0],
+ ['230.2','Ödənilmiş sığorta haqları',5599.62],
+ ['231','İstiqrazların, digər qiymətli kağızların, borc öhdəliklərinin və tələblərinin, iştirak payı və səhmlərin alınması ilə bağlı xərclər',0],
+ ['231.1','İstiqrazların alınması ilə bağlı xərclər',0],
+ ['231.2','Digər qiymətli kağızların alınması ilə bağlı xərclər',0],
+ ['231.3','Borc öhdəliklərinin alınması ilə bağlı xərclər',0],
+ ['231.4','Borc tələblərinin alınması ilə bağlı xərclər',0],
+ ['231.5','İştirak payı və səhmlərin alınması ilə bağlı digər xərclər',0],
+ ['231.6','Kütləvi təklif edilmiş və tənzimlənən bazarda ticarətə buraxılmış səhmlərin alınması ilə bağlı xərclər',0],
+ ['232','Digər xərclər',136],
+ ['232.1','Azərbaycan Respublikasının hüdudlarından kənarda gəlirlərin əldə edilməsi ilə bağlı xərclər',0],
+ ['232.2','Qeyri rezident üzrə sair xərclər',0],
+ ['232.3','Uçot metodunun dəyişilməsi nəticəsində yaranan keçmiş illərin xərci',0],
+ ['232.4','İştirak faizinə görə birgə fəaliyyətdən xərc',0],
+ ['232.4.1','Birgə fəaliyyət üzrə ümumi xərc',0],
+ ['232.4.2','İştirak faizi',0],
+ ['232.5','VM-nin 109.8-ci maddəsinə əsasən xərclər',0],
+ ['233','Gəlirdən çıxılan vergilər və yığımlar',2206.18],
+ ['233.1','Torpaq vergisi',56],
+ ['233.2','Əmlak vergisi',1645.38],
+ ['233.3','Mədən vergisi',0],
+ ['233.4','Azərbaycan Respublikasında istehsal edilən və qiymətləri tənzimlənən məhsulların ixracı zamanı məhsulların kontrakt (satış) qiyməti ilə (ixrac xərcləri çıxılmaqla) ölkədaxili topdansatış qiyməti arasındakı fərqdən dövlət büdcəsinə hesablanan yığım',0],
+ ['233.5','Vergi Məcəlləsinin 220.12-ci maddəsi üzrə nağd qaydada bank hesablarından çıxarılmış pul vəsaiti üzrə tutulmuş sadələşdirilmiş vergi',504.80],
+ ['234','CƏMİ XƏRCLƏR',886898.01,1],
+ ['235','Ümumi gəlirdən çıxılmayan xərclər',0],
+ ['235.1','Vergidən azad olunan və ya vergiyə cəlb edilməyən fəaliyyətlə bağlı bölüşdürülməsi mümkün olmayan xərclərin gəlirdən çıxılmayan məbləğlərinin cəmi',0],
+ ['235.1.1','Vergiyə cəlb edilməyən fəaliyyətlə bağlı bölüşdürülməsi mümkün olmayan xərclərin gəlirdən çıxılmayan məbləği',0],
+ ['235.2','Transfer qiymətlərinin tətbiq edilməsi nəticəsində azaldılan xərclər',0],
+ ['235.3','Dəqiqləşdirilən əməliyyatlar hesabına azaldılan xərc',0],
+ ['236','Ümumi gəlirlərdən çıxılan xərclər ( sət.234 - sət.235 )',886898.01,1],
+];
+// Verginin hesablanması (237–249.3)
+const MF_TAXCALC=[
+ ['237','Vergitutma məqsədləri üçün mənfəət (sət.220 - sət.236)',133286.82,1],
+ ['238','Mənfəət üzrə azadolmalar və güzəştlər (sətrin təsnifatı 5 №-li Əlavə ilə təqdim olunur)',0],
+ ['239','Zərər (sət.236 - sət.220)',0],
+ ['240','Mənfəət hesabına kompensasiya edilən keçmiş illərin zərəri',0],
+ ['240.1','2020-ci il üzrə zərərin məbləği',0],
+ ['240.2','2021-ci il üzrə zərərin məbləği',0],
+ ['240.3','2022-ci il üzrə zərərin məbləği',0],
+ ['240.4','2023-cü il üzrə zərərin məbləği',0],
+ ['240.5','2024-cü il üzrə zərərin məbləği',0],
+ ['241','Mənfəət üzrə azadolma, güzəşt və mənfəət hesabına kompensasiya edilən keçmiş illərin zərəri çıxılmaqla vergiyə cəlb olunan mənfəət (sət.237 - (sət.238 + sət.240))',133286.82,1],
+ ['242','Mənfəət vergisinin dərəcəsi',20,2],
+ ['243','Mənfəət vergisi ( sət.241 x sət.242 : 100 )',26657.36,1],
+ ['244','Azaldılmalı verginin məbləği',0],
+ ['244.1','VM-nin 106.2-ci maddəsinə əsasən azaldılmalı verginin məbləği',0],
+ ['244.2','Xarici ölkələrdə ödənilmiş və nəzərə alınan mənfəət vergisinin məbləği',0],
+ ['244.3','Nəzarət olunan xarici müəssisədən əldə edilən mənfəət üzrə həmin ölkələrdə və ya ərazilərdə ödənilmiş və nəzərə alınan mənfəət vergisinin məbləği',0],
+ ['244.4','VM-nin 227.1-ci maddəsinə əsasən azaldılmalı verginin məbləği',0],
+ ['244.5','VM-nin 106.1.20-ci maddəsinə əsasən əvvəlki 3 təqvim ilinin yekunlarına görə hesablanmış və ödənilmiş mənfəət vergisinin 75 faizi həcmində azaldılmalı verginin məbləği',0],
+ ['245','Ödənilməli mənfəət vergisinin məbləği (sət.243 - sət.244)',26657.36,1],
+ ['245-1','Vergi agenti tərəfindən təmsil olunan şəxs üzrə hesablanmış vergi məbləği (Sətrin təsnifatı 8 nömrəli Əlavə ilə təqdim olunur)',0],
+ ['246','Elan edilmiş dividendlər',160238.98],
+ ['247','VM-nin 114.4-cü maddəsi ilə hesablanmış, lakin növbəti illərdə nəzərə alınacaq amortizasiya məbləği',0],
+ ['248','VM-nin 115.1-ci maddəsi ilə hesablanmış, lakin növbəti illərdə nəzərə alınacaq təmir xərclərinin məbləği',0],
+ ['249','VM-nə əsasən gəlirdən çıxılmayan xərclər',0],
+ ['249.1','VM-nin 109.2-ci maddəsinə əsasən gəlirdən çıxılmayan xərclər',0],
+ ['249.2','VM-nin 109.3-cü maddəsinə əsasən gəlirdən çıxılmayan xərclər',0],
+ ['249.3','Gəlirdən çıxılmayan digər xərclər',0],
+];
+// Əlavə 1 — balans (6 sütun: əvvəl/daxil/təqdim/silinmiş/ləğv/son)
+const MF_BALANCE=[
+ ['1','Cəmi aktivlər',932997.94,3367310.21,0,3340060.86,0,960247.29,1],
+ ['1.1','Əsas vəsaitlərin dəyəri',198343.95,86542.73,0,72604.70,0,212281.98],
+ ['1.1.1','Torpaqların yaxşılaşdırılması üzrə kapitallaşdırılmış xərclər, binalar, tikililər və qurğular',0,81550.34,0,0,0,81550.34],
+ ['1.1.1.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.2','Maşınlar və avadanlıq',35357.87,0,0,10607.36,0,24750.51],
+ ['1.1.2.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.3','Nəqliyyat vasitələri (yük avtomobilləri istisna olmaqla)',141651.59,0,0,53119.35,0,88532.24],
+ ['1.1.3.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.4','İş heyvanları',0,0,0,0,0,0],
+ ['1.1.4.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.5','Digər əsas vəsaitlər',9791.68,3469.48,0,3978.35,0,9282.81],
+ ['1.1.5.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.6','Yüksək texnologiyalar məhsulu olan hesablama texnikası',11542.81,1522.91,0,4899.64,0,8166.08],
+ ['1.1.6.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.7','Yük avtomobilləri',0,0,0,0,0,0],
+ ['1.1.7.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.1.8','İcarəyə götürülmüş əsas vəsaitlərin təmirinə çəkilən kapitallaşdırılmış xərclər',0,0,0,0,0,0],
+ ['1.2','Qeyri-maddi aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.2.1','İstifadə müddəti məlum olmayan qeyri-maddi aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.2.1.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.2.2','İstifadə müddəti məlum olan qeyri-maddi aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.2.2.1','Dövlət müəssisələrinə dövlət büdcəsinin investisiya xərcləri hesabına ayrılmış vəsaitlər hesabına alınan və ya quraşdırılan aktivlərin dəyəri',0,0,0,0,0,0],
+ ['1.3','Ehtiyatlar',0,3541.05,0,3541.05,0,0],
+ ['1.3.1','Hazır məhsul',0,0,0,0,0,0],
+ ['1.3.2','Mallar',0,0,0,0,0,0],
+ ['1.3.3','Bitməmiş istehsal',0,0,0,0,0,0],
+ ['1.3.4','Sair ehtiyatlar',0,3541.05,0,3541.05,0,0],
+ ['1.4','Debitor borcları',126925.70,1299302.68,0,1165005.81,0,261222.57],
+ ['1.4.1','Dövlət büdcəsinə (vergilər üzrə)',0,96270.26,0,0,0,96270.26],
+ ['1.4.2','Sair debitor borcları',126925.70,1203032.42,0,1165005.81,0,164952.31],
+ ['1.4.2.1','O cümlədən xarici borclar',0,0,0,0,0,0],
+ ['1.5','Pul vəsaitləri',362437.52,1600019.85,0,1949261.04,0,13196.33],
+ ['1.6','Səhmlər və iştirak payları üzrə maliyyə qoyuluşları',0,0,0,0,0,0],
+ ['1.7','Dövlət qiymətli kağızları',0,0,0,0,0,0],
+ ['1.8','Kapitallaşdırma üçün aktivlər',0,0,0,0,0,0],
+ ['1.9','Gələcək dövrün xərcləri',0,0,0,0,0,0],
+ ['1.10','Digər aktivlər',245290.77,377903.90,0,149648.26,0,473546.41],
+ ['2','Cəmi kapital və öhdəliklər',932997.94,2905489.27,0,2878239.92,0,960247.29,1],
+ ['2.1','Cəmi kapital',723654.69,830274.15,0,893290.77,0,660638.07],
+ ['2.1.1','Nizamnamə kapitalı',10,0,0,0,0,10],
+ ['2.1.2','Hesabat dövrünün xalis mənfəəti',723644.69,106629.46,0,733051.79,0,97222.36],
+ ['2.1.3','Əvvəlki illər üzrə bölüşdürülməmiş mənfəət',0,723644.69,0,160238.98,0,563405.71],
+ ['2.1.4','Emissiya gəliri',0,0,0,0,0,0],
+ ['2.1.5','Kapital ehtiyatları',0,0,0,0,0,0],
+ ['2.2','Cəmi öhdəliklər',209343.25,2075215.12,0,1984949.15,0,299609.22],
+ ['2.2.1','Kreditor borcları',208639.88,1548277.06,0,1482360.33,0,274556.61],
+ ['2.2.1.1','Bank kreditləri',0,150000,0,3222.99,0,146777.01],
+ ['2.2.1.1.1','O cümlədən xarici borclar',0,0,0,0,0,0],
+ ['2.2.1.2','Alınmış avanslar',0,383062.48,0,353062.48,0,30000],
+ ['2.2.1.3','Dövlət büdcəsinə vergi öhdəlikləri',207339.88,406558.04,0,591410.33,0,22487.59],
+ ['2.2.1.4','Törəmə (asılı) müəssisələrə kreditor borcları',0,0,0,0,0,0],
+ ['2.2.1.5','Sair kreditor borcları',1300,608656.54,0,534664.53,0,75292.01],
+ ['2.2.1.5.1','O cümlədən xarici borclar',0,0,0,0,0,0],
+ ['2.2.2','Gələcək dövrün gəlirləri',0,0,0,0,0,0],
+ ['2.2.3','Digər öhdəliklər',703.37,526938.06,0,502588.82,0,25052.61],
+];
+// Əlavə 5 — gəlirlər üzrə azadolmalar (3–29)
+const MF_EXEMPT_INC=[
+ ['3','Vergi Məcəlləsinin 106.1.1-ci maddəsinə əsasən xeyriyyə təşkilatlarının gəliri — sahibkarlıq fəaliyyətindən əldə etdikləri gəlirdən başqa',0],
+ ['4','Vergi Məcəlləsinin 106.1.2-ci maddəsinə əsasən qeyri-kommersiya təşkilatlarının aldıqları əvəzsiz köçürmələr, üzvlük haqları və ianələr',0],
+ ['5','Vergi Məcəlləsinin 106.1.3-cü maddəsinə əsasən beynəlxalq, dövlətlərarası və hökumətlərarası təşkilatların gəlirləri — sahibkarlıq fəaliyyətindən əldə etdikləri gəlirdən başqa',0],
+ ['6','Vergi Məcəlləsinin 106.1.4-cü maddəsinə əsasən dövlət hakimiyyəti orqanlarının, büdcə təşkilatlarının, yerli özünüidarəetmə orqanlarının və dövlətin adından yaradılan publik hüquqi şəxslərin gəlirləri (sahibkarlıq fəaliyyətindən gəlir istisna olmaqla)',0],
+ ['7','Vergi Məcəlləsinin 106.1.5-ci maddəsinə əsasən Azərbaycan Respublikası Mərkəzi Bankının və onun qurumlarının, ipoteka kreditləşməsi və sahibkarların aldıqları kreditlərə təminat verilməsi sahəsində fəaliyyət göstərən müvafiq icra hakimiyyəti orqanının müəyyən etdiyi orqanın (qurumun), Azərbaycan Respublikası Dövlət Neft Fondunun, Əmanətlərin Sığortalanması Fondunun, İcbari Sığorta Bürosunun gəlirləri, habelə müvafiq icra hakimiyyəti orqanının müəyyən etdiyi orqanın (qurumun) nizamnaməsinə (əsasnaməsinə) uyğun olaraq ayrılmış güzəştli kredit üzrə müvəkkil kredit təşkilatları tərəfindən həmin orqanlara (qurumlara) ödənilən faiz gəlirləri',0],
+ ['8','Vergi Məcəlləsinin 106.1.6-cı maddəsinə əsasən alınmış sığorta ödənişləri (həmin sığorta hadisəsi ilə əlaqədar zərərə aid edilən məbləğlərdən başqa)',0],
+ ['9','Vergi Məcəlləsinin 106.1.8-ci maddəsinə əsasən Azərbaycan Respublikasının qanunvericiliyinə uyğun olaraq dövlət büdcəsinə olan vergi borclarının silinməsindən əldə olunan gəlir',0],
+ ['10','Vergi Məcəlləsinin 106.1.9-cu maddəsinə əsasən Azərbaycan Respublikasının Prezidenti tərəfindən müəyyən edilmiş hallarda hüquqi şəxsin qərarı ilə onun özünün və onun tam mülkiyyətində olan rezident törəmə müəssisələrinin birinin balansından digərinin balansına əvəzsiz olaraq verilən aktivlərin dəyəri',0],
+ ['11','Vergi Məcəlləsinin 106.1.10-cu maddəsinə əsasən Azərbaycan Respublikasının Prezidentinin qərarına əsasən bir hüquqi şəxsin balansından əvəzsiz olaraq digər şəxsin balansına verilmiş əsas vəsaitlərin dəyəri',0],
+ ['12','Vergi Məcəlləsinin 106.1.11-ci maddəsinə əsasən neft-qaz ehtiyatlarının kəşfiyyatı, işlənməsi və hasilatın pay bölgüsü, ixrac boru kəmərləri haqqında və bu qəbildən olan digər sazişlərə uyğun olaraq əsas fondların, daşınar əmlakın və digər aktivlərin hər hansı şəkildə həmin sazişlərdə Azərbaycan Respublikasını təmsil edən tərəfə təqdim edilməsi üzrə əməliyyatlar',0],
+ ['13','Vergi Məcəlləsinin 106.1.13-cü maddəsinə əsasən Azərbaycan Respublikasının Prezidentinin müəyyən etdiyi orqanın (qurumun) yaratdığı sənaye, yaxud texnologiyalar parkındakı fəaliyyətdən əldə etdikləri gəlir',0],
+ ['14','Vergi Məcəlləsinin 106.1.15-ci maddəsinə əsasən məktəbəqədər təhsil müəssisələrinin və uşaq evlərinin bu fəaliyyətdən əldə etdikləri gəlirləri',0],
+ ['15','Vergi Məcəlləsinin 106.1.16-cı maddəsinə əsasən «Torpaqların dövlət ehtiyacları üçün alınması haqqında» Azərbaycan Respublikasının Qanununa əsasən hüquqi şəxslərə ödənilən kompensasiya',0],
+ ['16','Vergi Məcəlləsinin 106.1.19-cu maddəsinə əsasən vergi ödəyicisinin azı 3 (üç) il ərzində mülkiyyətində olan iştirak payının və ya səhmin təqdim edilməsindən əldə olunan gəlirlərinin 50 faizi',0],
+ ['17','Vergi Məcəlləsinin 106.10-cu maddəsinə əsasən qanunla müəyyən olunmuş qaydada gəlirlərin və xərclərin uçotunu aparan, ƏDV-nin məqsədləri üçün qeydiyyata alınmayan və əməliyyatlarının həcmi ardıcıl 12 aylıq dövrün istənilən ayında (aylarında) 200.000 manatadək rezident müəssisənin təsisçisi (payçısı) və yaxud səhmdarları olan hüquqi şəxslərin dividend gəlirləri',0],
+ ['18','Vergi Məcəlləsinin 106.1.24-cü maddəsinə əsasən "Məşğulluq haqqında" Azərbaycan Respublikasının Qanununa uyğun olaraq Azərbaycan Respublikasının Prezidentinin müəyyən etdiyi orqanın (qurumun) haqqı ödənilən ictimai işlərin təşkili ilə bağlı fəaliyyətdən əldə etdiyi gəlir',0],
+ ['19','Vergi Məcəlləsinin 106.1.28-ci maddəsinə əsasən Azərbaycan Respublikasında keçirilən Formula 1 və Formula 2 yarışlarına aid qeyri-maddi aktivlər üzərində müəllif hüquqlarından istifadə olunmasına, yaxud istifadə hüquqlarının verilməsinə görə Gənclər və idman Nazirliyi ilə bağlanılmış müqavilə əsasında onun tərəfindən qeyri-rezident hüquqi şəxsə ödənilən royalti gəlirləri',0],
+ ['20','Vergi Məcəlləsinin 106.1.29-cu maddəsinə əsasən lotereya biletlərinin satıcısı ilə bağlanmış müqavilə əsasında və ya onun tapşırığı əsasında lotereya biletlərinin bütün mərhələlərdə agent qaydasında satışını həyata keçirilməsi üzrə göstərilən xidmətlərdən əldə olunan gəlirlər',0],
+ ['21','Vergi Məcəlləsinin 106.1.14-1-ci maddəsinə əsasən kənd təsərrüfatı məhsullarının istehsalı ilə məşğul olan (o cümlədən sənaye üsulu ilə) hüquqi şəxslərin bu fəaliyyət üzrə satışdankənar gəlirləri, kənd təsərrüfatı məhsullarının istehsalı ilə əlaqədar hüquqi şəxslərə dövlət büdcəsinin vəsaiti hesabına verilən subsidiyalar, habelə kənd təsərrüfatı məhsullarının istehsalı ilə məşğul olan (o cümlədən sənaye üsulu ilə) rezident hüquqi şəxslərin iştirakçıları olan hüquqi şəxslərin bu sahə üzrə dividend gəlirləri',0],
+ ['22','Vergi Məcəlləsinin 106.1.30-cu maddəsinə əsasən vəkillər və vəkil qurumları tərəfindən order markasının əldə edilməsi ilə bağlı Azərbaycan Respublikası Vəkillər Kollegiyasına edilən ödənişlər',0],
+ ['23','Vergi Məcəlləsinin 227.3-cü maddəsinə əsasən işğaldan azad edilmiş ərazinin rezidenti olan hüquqi şəxslərin səhmdarlarının (payçılarının) dividend gəlirləri',0],
+ ['24','Vergi Məcəlləsinin 106.1.32-ci maddəsinə əsasən media subyektlərinin (audiovizual media subyektləri istisna olmaqla) öz fəaliyyətlərindən əldə etdikləri gəlirlər (o cümlədən reklam gəlirləri), habelə müvafiq icra hakimiyyəti orqanının müəyyən etdiyi orqan (qurum) tərəfindən verilən maddi yardımlar',0],
+ ['25','Vergi Məcəlləsinin 106.1.34-cü maddəsinə əsasən tibb müəssisələri tərəfindən dövlət büdcəsinə ƏDV hesablanarkən bu Məcəllənin 174.5-ci maddəsinə əsasən ƏDV məbləğinin azaldılmasından əldə edilən gəlirlər',0],
+ ['26','Vergi Məcəlləsinin 106.1.13-1-ci maddəsinə əsasən texnologiyalar parkının rezidenti kimi texnologiyalar parkından kənar sistem inteqrasiyası, proqram təminatının hazırlanması və inkişaf etdirilməsi fəaliyyətini həyata keçirən şəxslər tərəfindən ödənilən dividend gəlirləri',0],
+ ['27','Vergi Məcəlləsinin 106.1.36-cı maddəsinə əsasən "Sosial sığorta haqqında" və "İşsizlikdən sığorta haqqında" Azərbaycan Respublikasının qanunlarına uyğun olaraq sərbəst vəsaitlərin investisiyaya yönəldilməsindən əldə olunan gəlirlər',0],
+ ['28','Qanunla təsdiq olunmuş əsas boru kəməri haqqında və digər bu qəbildən olan sazişlər və ya qanunlar çərçivəsində göstərilən fəaliyyətindən əldə olunan gəlir',0],
+ ['29','Gəlirlər üzrə azadolmalar barədə CƏMİ məlumat',0,1],
+];
+// Əlavə 5 — mənfəət üzrə güzəştlər (30–42)
+const MF_EXEMPT_PROFIT=[
+ ['30','Vergi məcəlləsinin 106.1.14-cü maddəsinə əsasən kənd təsərrüfatı məhsullarının istehsalı ilə məşğul olan (o cümlədən, sənaye üsulu ilə) hüquqi şəxslərin bu fəaliyyətdən əldə etdikləri mənfəəti',0],
+ ['31','Vergi məcəlləsinin 106.1.7-ci maddəsinə əsasən təhsil müəssisələrinin, o cümlədən məktəbəqədər təhsil müəssisələrinin və sağlamlıq imkanları məhdud şəxslərin təhsil alması üçün yaradılmış xüsusi təhsil müəssisələrinin mənfəəti',0],
+ ['32','Vergi Məcəlləsinin 106.1.12-ci maddəsinə əsasən Azərbaycan Respublikasının Prezidentinin müəyyən etdiyi orqanın (qurumun) yaratdığı sənaye, yaxud texnologiyalar parklarının idarəedici təşkilatının və ya operatorunun mənfəətinin sənaye, yaxud texnologiyalar parklarının infrastrukturunun tikintisinə və saxlanılmasına yönəldilmiş hissəsi',0],
+ ['33','Vergi Məcəlləsinin 106.1.17-ci maddəsinə əsasən investisiya təşviqi sənədini almış hüquqi şəxsin həmin sənədi aldığı tarixdən əldə etdiyi mənfəətin 50 faizi',0],
+ ['34','Vergi Məcəlləsinin 106.1.18-ci maddəsinə əsasən dövlətin adından yaradılan publik hüquqi şəxslər istisna olmaqla, vergi ödəyicisinin hesabat ilinin mənfəətinin 15 faizindən çox olmayan hissəsinin Azərbaycan Respublikası Nazirlər Kabineti tərəfindən müəyyən edilən meyarlara cavab verən elm, təhsil, səhiyyə, idman və mədəniyyət sahəsində fəaliyyət göstərən müəssisə, idarə və təşkilatlara köçürülən hissəsi',0],
+ ['35','Vergi Məcəlləsinin 106.1.20-ci maddəsinə əsasən müvafiq il üzrə orta aylıq muzdlu işçi sayı 3 nəfərdən az olmayan və məcburi dövlət sosial sığorta haqları üzrə borcu olmayan mikro sahibkarlıq subyekti olan hüquqi şəxslərin sahibkarlıq fəaliyyətindən əldə etdikləri mənfəəti 75 faizi',0],
+ ['36','Vergi Məcəlləsinin 106.1.21-ci maddəsinə əsasən KOB klaster şirkətinin mənfəəti',0],
+ ['37','Vergi Məcəlləsinin 106.1.22-ci maddəsinə əsasən KOB klasterin iştirakçısı olan hüquqi şəxsin KOB klaster şirkəti ilə bağlanmış müqavilə əsasında təqdim etdiyi mal (iş, xidmət) üzrə əldə etdiyi mənfəətin kapital xarakterli xərclərin çəkilməsinə yönəldilən hissəsi',0],
+ ['38','Vergi Məcəlləsinin 106.1.23-cü maddəsinə əsasən mikro və ya kiçik sahibkarlıq subyekti olan və hüquqi şəxs kimi fəaliyyət göstərən startapların "Startap" şəhadətnaməsi aldığı tarixdən innovasiya fəaliyyətindən əldə etdikləri mənfəəti',0],
+ ['39','Vergi Məcəlləsinin 106.1.31-ci maddəsinə əsasən siyahısı Azərbaycan Respublikasının Nazirlər Kabineti tərəfindən təsdiq edilmiş idxal mallarını yerli istehsal (emal) malları ilə əvəz edəcək qida (ərzaq) məhsullarının istehsalını həyata keçirən hüquqi şəxslərin həmin fəaliyyətdən əldə etdikləri mənfəətin 50 faizi',0],
+ ['40','Vergi Məcəlləsinin 106.1.33-cü maddəsinə əsasən qanunla müəyyən olunmuş qaydada Azərbaycan Respublikasında qeydiyyatdan keçən və filmin istehsalını, habelə dublyajını həyata keçirən, mikro sahibkarlıq subyekti olmayan kinematoqrafiya müəssisəsinin sahibkarlıq fəaliyyətindən əldə etdikləri mənfəətin 90 faizi',0],
+ ['41','Vergi Məcəlləsinin 106.1.35-ci maddəsinə əsasən dövlət-özəl tərəfdaşlığı layihələri üzrə özəl tərəfdaş və ya layihə şirkəti olan, habelə dövlətin satınalma öhdəliyi ilə bərpa olunan enerji mənbələrindən istifadə edilməklə, müvafiq icra hakimiyyəti orqanının müəyyən etdiyi orqanın (qurumun) müəyyən etdiyi məbləğdən aşağı olmayan elektrik enerjisi istehsalı layihələri üzrə istehsalçı olan hüquqi şəxslərin həmin layihələr üzrə əldə etdikləri mənfəət',0],
+ ['42','Mənfəət üzrə güzəştlər barədə CƏMİ məlumat',0,1],
+];
+// İcmal — büdcəyə ödənilməli verginin ağac quruluşu
+const MF_SUMMARY=[
+ ['245','Ödənilməli mənfəət vergisinin məbləği (sət.243 - sət.244)',26657.36,0],
+ ['243','Mənfəət vergisi (sət.241 X sət.242 : 100 )',26657.36,0],
+ ['241','Mənfəət üzrə azadolma, güzəşt və mənfəət hesabına kompensasiya edilən keçmiş illərin zərəri çıxılmaqla vergiyə cəlb olunan mənfəət (sət.237 - (sət.238 + sət.240))',133286.82,0],
+ ['237','Vergitutma məqsədləri üçün mənfəət (sət.220 - sət.236)',133286.82,1],
+ ['238','Mənfəət üzrə azadolmalar və güzəştlər (sətrin təsnifatı 5№-li Əlavə ilə təqdim olunur)',0,1],
+ ['240','Mənfəət hesabına kompensasiya edilən keçmiş illərin zərəri',0,1],
+ ['242','Mənfəət vergisinin dərəcəsi',20,0],
+ ['244','Azaldılmalı verginin məbləği',0,0],
+ ['244.1','VM-nin 106.2-ci maddəsinə əsasən azaldılmalı verginin məbləği',0,1],
+ ['244.2','Xarici ölkələrdə ödənilmiş və nəzərə alınan mənfəət vergisinin məbləği',0,1],
+ ['244.3','Nəzarət olunan xarici müəssisədən əldə edilən mənfəət üzrə həmin ölkələrdə və ya ərazilərdə ödənilmiş və nəzərə alınan mənfəət vergisinin məbləği',0,1],
+ ['244.4','VM-nin 227.1-ci maddəsinə əsasən azaldılmalı verginin məbləği',0,1],
+ ['244.5','VM-nin 106.1.20-ci maddəsinə əsasən əvvəlki 3 təqvim ilinin yekunlarına görə hesablanmış və ödənilmiş mənfəət vergisinin 75 faizi həcmində azaldılmalı verginin məbləği',0,1],
+];
+const MF_APPENDIX=['Vergi uçotunun məqsədləri üçün aktivlər, öhdəliklər və kapitallar barədə məlumat (Əlavə 1)','Vergi ödəyicisinin xaricdə olan bank hesabları barədə məlumat (Əlavə 2)','Vergi ödəyicisinin ümidsiz borcları barədə məlumat (Əlavə 3)','Obyektlər barədə məlumat (Əlavə 4)','Azadolmalar və güzəştlər barədə məlumat (Əlavə 5)'];
+
+/* ── rəsmi forma renderi ── */
+function mfRow2(r){ // [code,name,val,strongFlag(1=cəm,2=faiz)]
+  const strong=r[3]===1, pct=r[3]===2;
+  return `<tr class="${strong?'mf-strong':''}"><td class="mf-code">${r[0]}</td><td class="mf-name">${r[1]}</td><td class="mf-val">${pct?fmt2(r[2]).replace(',00',',00'):fmt2(r[2])}</td></tr>`;
+}
+function mfTable2(rows,head='Məbləğ'){
+  return `<div class="mf-tablewrap"><table class="mf-table"><thead><tr><th class="mf-code">Göstəricilər</th><th></th><th class="mf-val">${head}</th></tr></thead><tbody>${rows.map(mfRow2).join('')}</tbody></table></div>`;
+}
+function mfTable6(rows){
+  const cols=['Hesabat dövrünün əvvəlinə','Dövr üzrə daxil olmuşdur','Təqdim edilmişdir','Silinmişdir','Ləğv edilmişdir','Hesabat dövrünün sonuna'];
+  const body=rows.map(r=>{
+    const strong=r[8]===1;
+    return `<tr class="${strong?'mf-strong':''}"><td class="mf-code">${r[0]}</td><td class="mf-name">${r[1]}</td>${[2,3,4,5,6,7].map(i=>`<td class="mf-val">${fmt2(r[i])}</td>`).join('')}</tr>`;
+  }).join('');
+  return `<div class="mf-tablewrap"><table class="mf-table mf-table6"><thead><tr><th class="mf-code">Göstəricilər</th><th></th>${cols.map(c=>`<th class="mf-val">${c}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function mfStepContent(){
+  const s=state.declStep;
+  if(s===1){
+    return `<h2 class="mf-h">Ümumi məlumat</h2>
+      <label class="mf-check"><input type="checkbox" disabled/> Bəyan ediləcək məlumatım yoxdur</label>
+      <div class="mf-kv">${MF_GENERAL.map(([k,v])=>`<div class="mf-kvrow"><span class="mf-k">${k}</span><span class="mf-v">${v}</span></div>`).join('')}</div>
+      <div class="mf-kv mf-kv2">${MF_GENERAL2.map(([k,v])=>`<div class="mf-kvrow"><span class="mf-k">${k}</span><span class="mf-vbox">${v}</span></div>`).join('')}
+        <div class="mf-kvrow"><span class="mf-k">Vergi agenti olması barədə qeyd</span><span><input type="checkbox" disabled/></span></div></div>`;
+  }
+  if(s===2) return `<h2 class="mf-h">Hesabat dövrünün G Ə L İ R L Ə R İ (ƏDV, aksiz və yol vergisi nəzərə alınmadan)</h2>`+mfTable2(MF_INCOME);
+  if(s===3) return `<h2 class="mf-h">Hesabat dövründə gəlirlərin əldə edilməsi ilə bağlı Xərclər</h2>`+mfTable2(MF_EXPENSE);
+  if(s===4) return `<h2 class="mf-h">Hesabat dövrü üçün verginin hesablanması</h2>`+mfTable2(MF_TAXCALC);
+  if(s===5) return `<div class="mf-sub">Əlavə 1</div><h2 class="mf-h">Vergi uçotunun məqsədləri üçün aktivlər, öhdəliklər və kapitallar barədə məlumat</h2>`+mfTable6(MF_BALANCE);
+  if(s===6) return `<div class="mf-sub">Əlavə 2</div><h2 class="mf-h">Vergi ödəyicisinin xaricdə olan bank hesabları barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
+  if(s===7) return `<div class="mf-sub">Əlavə 3</div><h2 class="mf-h">Vergi ödəyicisinin ümidsiz borcları barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
+  if(s===8) return `<div class="mf-sub">Əlavə 4</div><h2 class="mf-h">Obyektlər barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
+  if(s===9) return `<div class="mf-sub">Əlavə 5</div><h2 class="mf-h">Gəlirlər üzrə azadolmalar barədə məlumat</h2>`+mfTable2(MF_EXEMPT_INC,'Məbləğ, manatla')
+    +`<h2 class="mf-h" style="margin-top:24px">Mənfəət üzrə güzəştlər barədə məlumat</h2>`+mfTable2(MF_EXEMPT_PROFIT,'Məbləğ, manatla');
+  if(s===10) return `<div class="mf-sub">Əlavə 7</div><h2 class="mf-h">Sahibkarlıq fəaliyyəti üzrə xarici ölkələrdə əldə edilmiş gəlirlər üzrə, ödənilmiş və nəzərə alınan gəlir vergisinin məbləği barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
+  if(s===11){
+    const rows=MF_SUMMARY.map(r=>`<tr class="${r[3]===1?'mf-sumchild':''}"><td class="mf-code"><span class="mf-codebox">${r[0]}</span></td><td class="mf-name">${r[1]}</td><td class="mf-val">${fmt2(r[2])}</td></tr>`).join('');
+    const apps=MF_APPENDIX.map(a=>`<div class="mf-approw"><span>${a}</span>${svg(I.ok,{size:16,color:C('ok')})}</div>`).join('');
+    return `<h2 class="mf-h">İcmal</h2><div class="mf-sub2">Büdcəyə ödənilməli verginin məbləği</div>
+      <div class="mf-tablewrap"><table class="mf-table"><thead><tr><th class="mf-code">Göstəricilər</th><th></th><th class="mf-val">Verginin məbləği, manatla</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="mf-sub2" style="margin-top:20px">Əlavələr</div><div class="mf-apps">${apps}</div>`;
+  }
+  return '';
+}
+function viewDeclForm(){
+  const steps=MF_STEPS.map(st=>{
+    const on=state.declStep===st.n;
+    return `<button class="mf-step ${on?'on':''}" data-declstep="${st.n}">
+      <span class="mf-num">${st.n}</span>
+      <span class="mf-lbl">${st.t}${st.sub?`<span class="mf-elave">${st.sub}</span>`:''}</span></button>`;
+  }).join('');
+  return `<div class="mf-shell">
+    <aside class="mf-side">
+      <button class="mf-back" data-declclose>${svg(I.chevL,{size:15,color:'#fff'})} Siyahıya qayıt</button>
+      <div class="mf-title">Mənfəət vergisi</div>
+      <span class="mf-status">${MF_META.status}</span>
+      <div class="mf-meta">
+        <div><span>Dövr :</span> <b>${MF_META.dovr}</b></div>
+        <div><span>Bəyannamə növü :</span> <b>${MF_META.bntip}</b></div>
+        <div><span>Göndərilmə növü :</span> <b>${MF_META.gtip}</b></div>
+        <div><span>Qeydiyyat nömrəsi :</span> <b>${MF_META.regNo}</b></div>
+        <div><span>Qeydiyyat tarixi :</span> <b>${MF_META.regDate}</b></div>
+      </div>
+      <div class="mf-steps">${steps}</div>
+    </aside>
+    <main class="mf-main">
+      <div class="mf-content">${mfStepContent()}</div>
+      <div class="mf-foot">
+        <div class="mf-navbtns">
+          ${state.declStep>1?`<button class="mf-btn ghost" data-declnav="-1">Geri</button>`:''}
+          ${state.declStep<11?`<button class="mf-btn" data-declnav="1">İrəli</button>`:''}
+        </div>
+        <div class="mf-actbtns">
+          <button class="mf-btn ghost">${svg(I.file,{size:14,color:C('inkSoft')})} XML endir</button>
+          <button class="mf-btn ghost">${svg(I.sheet,{size:14,color:C('inkSoft')})} Çap et</button>
+        </div>
+      </div>
+    </main>
+  </div>`;
+}
 function viewDeclare(){
   const {loss,cells}=buildDeclaration(period().declInput);
   const secOrder=['Gəlir','Xərclər','Düzəlişlər','Vergi hesabı'];
@@ -921,8 +1429,12 @@ function viewDeclare(){
     : period().declareNotice;
   return vhead('04','Bəyannamə xanaları — MENFEET_1','Rəqəmlər rəsmi mənfəət bəyannaməsi (MENFEET_1) göstərici kodlarına uyğun formalaşır. Vergi tutulan mənfəət/zərər deterministik hesablanır; hər xana mənbəyə qədər izlənə bilər.')
     +`<div class="card">${rows}</div>
-      <div class="noticebar" style="background:${loss>0?C('flagBg'):C('flagBg')}">${svg(I.warn,{size:15,color:C('flag')})}<p>${notice}</p></div>
-      <p style="font-size:11px;color:${C('inkFaint')};margin-top:12px;line-height:1.5">Tam forma həmçinin balans bölmələrini (aktivlər 4xxx, kapital 5xxx–7xxx) əhatə edir — onlar ingestion mərhələsində doldurulacaq. Gəlir və xərclərin alt-göstəriciləri (1002…1072, 2001…2071) təsnifatdan formalaşacaq. Bəzi alt-kodlar rəsmi XSD (MENFEET_1.xsd) ilə təsdiqlənməlidir.</p>`;
+      <div class="clsactions" style="margin-top:14px">
+        <div class="clsstatus" style="color:${C('inkSoft')}">Rəsmi forma: 11 addım · gəlir/xərc/balans/əlavələr</div>
+        <div class="clsbtns"><button class="dbtn" data-declopen>${svg(I.file,{size:13,color:'#fff'})} Rəsmi formada aç</button></div>
+      </div>
+      <div class="noticebar" style="background:${loss>0?C('flagBg'):C('flagBg')};margin-top:14px">${svg(I.warn,{size:15,color:C('flag')})}<p>${notice}</p></div>
+      <p style="font-size:11px;color:${C('inkFaint')};margin-top:12px;line-height:1.5">Yuxarıdakı xülasə auditin nəticəsidir. <b>“Rəsmi formada aç”</b> — dövlət platformasındakı MENFEET forması ilə birəbir 11 addımlı görünüş (kodlar və adlar eyni). Real datada bütün göstəricilər ingestion + təsnifatdan doldurulacaq.</p>`;
 }
 const VIEWS={sources:viewSources,classify:viewClassify,reconcile:viewReconcile,declare:viewDeclare};
 
@@ -1151,6 +1663,11 @@ function viewRegister(){
 
 /* ── render ── */
 function render(){
+  const declform=state.view==='declform';
+  document.body.classList.toggle('declform-active',declform);
+  document.getElementById('header').style.display=declform?'none':'';
+  document.getElementById('footer').style.display=declform?'none':'';
+  if(declform){document.getElementById('app').innerHTML=viewDeclForm();return;}
   document.getElementById('header').innerHTML=renderHeader();
   let html;
   switch(state.view){
@@ -1179,6 +1696,14 @@ document.addEventListener('click',e=>{
   if(go1){go(go1.dataset.go);return;}
   const ct=e.target.closest('[data-contact]');
   if(ct){state.contactSent=true;render();return;}
+  const declopen=e.target.closest('[data-declopen]');
+  if(declopen){state.declStep=1;state.view='declform';window.scrollTo(0,0);render();return;}
+  const declclose=e.target.closest('[data-declclose]');
+  if(declclose){state.view='audit';state.step='declare';window.scrollTo(0,0);render();return;}
+  const declstep=e.target.closest('[data-declstep]');
+  if(declstep){state.declStep=+declstep.dataset.declstep;document.querySelector('.mf-main')&&document.querySelector('.mf-main').scrollTo(0,0);render();return;}
+  const declnav=e.target.closest('[data-declnav]');
+  if(declnav){state.declStep=Math.max(1,Math.min(11,state.declStep+ +declnav.dataset.declnav));render();return;}
   const st=e.target.closest('[data-step]');
   if(st){state.step=st.dataset.step;render();return;}
   const tg=e.target.closest('[data-toggle]');
