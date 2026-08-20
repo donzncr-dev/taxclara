@@ -7,7 +7,9 @@ Kod yazmazdan əvvəl bu faylı oxu. Hər qərarın səbəbi var — dəyişmək
 
 ## 1. Layihə nədir
 
-Azərbaycan müəssisələri üçün **vergi bəyannaməsi hazırlama + uyğunsuzluq auditi** platforması.
+**Mövqeləndirmə:** Mühasib üçün **vergi və mühasibat məlumatlarını bir-biri ilə uzlaşdıran, riskləri
+aşkarlayan və izah edən audit platforması.** Bu, "bəyannamə doldurma" aləti deyil — audit alətidir;
+bəyannamə formalaşdırma yalnız nəticədir.
 İstifadəçi: vergi mütəxəssisi / mühasib (SM Consulting tipli firma konteksti).
 
 Axın: mühasibat & vergi datası qəbul et → analiz et → Vergi Məcəlləsinə uyğun düzəlişlər tətbiq et →
@@ -56,6 +58,13 @@ Bunlar layihənin onurğasıdır. Pozma.
 
 8. **Dörd göz (təsdiq axını).** Bəyannamə statusu: `HAZIRLANIR → BAXIŞ → TƏSDİQ → TƏQDİM ÜÇÜN HAZIR`.
    Kiçik mühasib hazırlayır, senior təsdiqləyir.
+
+9. **AI köməkçidir, deterministik rule engine həlledicidir.** AI yalnız bu köməkçi rollarda işləyir:
+   sənəd tanıma, hesab təsnifatı, anomaliya aşkarlanması, hüquqi əsasın **təklifi**, açıqlama mətninin
+   generasiyası, risk prioritetləşdirməsi. **Yekun vergi hesablaması HEÇ VAXT AI ilə edilmir** —
+   həmişə `src/domain/` altındakı deterministik, tipli, versiyalı qayda mühərriki (rule engine) ilə.
+   AI çıxışı təklifdir; rəqəm və qərar deterministik koddan gəlir və mühasib təsdiqləyir. Bu sərhəd
+   məhsulun etibarının onurğasıdır — pozma.
 
 ---
 
