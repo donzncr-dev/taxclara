@@ -210,6 +210,10 @@
   .drow .dn .t{font-weight:500;font-size:13px;}
   .drow .dn .s{font-size:11px;color:var(--inkFaint);margin-top:2px;display:flex;align-items:center;gap:4px;}
   .dval{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13.5px;}
+  .dsec2{font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--brass);
+    padding:12px 16px 6px;border-bottom:1px solid var(--hairSoft);background:var(--paper);}
+  .dcode.vcode{background:transparent;border:1px dashed var(--inkFaint)66;color:var(--inkFaint);}
+  .vflag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--review);margin-left:6px;font-weight:500;}
   .noticebar{margin-top:12px;border-radius:9px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;background:var(--flagBg);}
   .noticebar p{font-size:12px;line-height:1.35;color:var(--inkSoft);}
 
@@ -382,6 +386,12 @@ function azn(n){
   const g=String(abs).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
   return (r<0?'− ':'')+g+' ₼';
 }
+// 2 onluqlu (qəpik) — rəsmi bəyannamə dəqiqliyi ("1 230 370.54 ₼")
+function azn2(n){
+  const neg=n<0, cents=Math.round(Math.abs(n)*100), int=Math.floor(cents/100), frac=cents%100;
+  const g=String(int).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return (neg?'− ':'')+g+'.'+String(frac).padStart(2,'0')+' ₼';
+}
 
 /* ── körpü mühərriki (src/domain/reconciliation/engine.ts ilə eyni məntiq) ── */
 function runBridge(b){
@@ -532,6 +542,35 @@ const PERIODS=[{
   ],
   declInput:{revenue:625200, deductible:147500, taxAdjust:0, lossUsed:0, rate:0.20},
   declareNotice:'1 açıq bayraq (e-Qaimə ↔ ƏDV fərqi 1 800 ₼). Sənədlərdən 2-si çatışmır.',
+},
+{
+  // Real MENFEET_1 XML nümunəsindən (file.xml) — zərərli dövr
+  id:'parla-2025', company:'"PARLA PHARMACEUTICALS" MMC', voen:'1404839171',
+  periodLabel:'İllik · 2025', status:'BAXIŞ',
+  profile:{vat:true, withholding:false, travel:false, fixedAssets:true, exemption:false},
+  docs:[
+   {id:'prevDecl',ic:'file',tier:'core',name:'Əvvəlki il MVB / GVB',why:'Zərər qalığı və açılış',pre:{name:'Parla_2024_MVB.pdf',meta:'Oxundu'}},
+   {id:'ledger',ic:'sheet',tier:'core',name:'Baş kitab / 1C ixracı (Excel)',why:'Hesablar planı üzrə dövriyyələr',pre:{name:'Parla_BashKitab.xlsx',meta:'Oxundu'}},
+   {id:'bank',ic:'bank',tier:'core',name:'Bank çıxarışları / konsolidə cədvəl',why:'Bütün hesablar üzrə hərəkət',pre:{name:'Parla_Bank.pdf',meta:'Oxundu'}},
+   {id:'eqaimeOut',ic:'receipt',tier:'core',name:'Göndərilən e-Qaimə cədvəli',why:'Vergi sistemi · satış',pre:{name:'Parla_eQaime.xlsx',meta:'1 230 370.54 ₼'}},
+   {id:'unified',ic:'users',tier:'core',name:'Vahid Bəyannamələr (DSMF)',why:'Muzdlu iş · əməkhaqqı bazası',pre:{name:'Parla_Vahid.pdf',meta:'Oxundu'}},
+   {id:'vatDecl',ic:'file',tier:'cond',cond:'vat',name:'ƏDV bəyannamələri (rüblük)',why:'ƏDV qeydiyyatı var',pre:{name:'Parla_EDV.pdf',meta:'Oxundu'}},
+   {id:'amort',ic:'building',tier:'cond',cond:'fixedAssets',name:'Amortizasiya cədvəli',why:'Əsas vəsaitlər · vergi amortizasiyası',pre:{name:'Parla_Amort.xlsx',meta:'Oxundu'}},
+  ],
+  classify:[
+   {name:'Material / mal dəyəri',amount:1486619.14,s:'deduct'},
+   {name:'Əməkhaqqı',amount:114243,s:'deduct'},
+   {name:'İcarə / kommunal',amount:20205,s:'deduct'},
+   {name:'Amortizasiya',amount:62397,s:'adjust',norm:'Mühasibat ≠ vergi amortizasiyası — düzəliş'},
+  ],
+  bridges:[
+   {id:'eqaime',title:'e-Qaimələr ↔ ƏDV dövriyyəsi',
+    start:{label:'e-Qaimələr üzrə satış',value:1230370.54},
+    lines:[],
+    expectedLabel:'Gözlənilən ƏDV dövriyyəsi',actual:{label:'ƏDV bəyannaməsi dövriyyəsi',value:1230370.54},tol:1},
+  ],
+  declInput:{revenue:1230370.54, deductible:1850578.12, taxAdjust:0, lossUsed:0, rate:0.20},
+  declareNotice:'Dövr zərərlə bağlanır (620 207.58 ₼) — mənfəət vergisi 0.',
 }];
 
 const CLS={deduct:{l:'Çıxılan',c:'ok',bg:'okBg'},nondeduct:{l:'Çıxılmayan',c:'flag',bg:'flagBg'},
@@ -819,34 +858,55 @@ function viewReconcile(){
   return vhead('03','Uyğunsuzluq auditi','Hər körpü bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayır.')
     +stats+`<div class="bridges">${rs.map(bridge).join('')}</div>`;
 }
-// Mənfəət bəyannaməsi hesablaması — src/domain/declaration/builder.ts ilə eyni məntiq.
+// Mənfəət bəyannaməsi — rəsmi MENFEET_1 formatı göstərici kodları (bax: docs/06).
 // Vergi tutulan mənfəət = gəlir − çıxılan xərclər + vergi düzəlişi (işarəli) − istifadə olunan zərər.
+// Nəticə mənfidirsə → 3002 (Zərər), vergi tutulan mənfəət (3001) = 0, vergi = 0.
+// Kodlar 1001/2073/3001/3002/3004/3005 real fayldan təsdiqlənib; düzəliş/zərər alt-kodları XSD ilə təsdiqlənməli.
 function buildDeclaration(inp){
-  const taxable=Math.max(0, inp.revenue - inp.deductible + inp.taxAdjust - inp.lossUsed);
-  const tax=Math.round(taxable*inp.rate*100)/100;
+  const base=inp.revenue - inp.deductible + inp.taxAdjust - inp.lossUsed;
+  const profit=Math.max(0, base), loss=Math.max(0, -base);
+  const tax=Math.round(profit*inp.rate*100)/100;
   const adjOp=inp.taxAdjust<0?'−':'+';
-  const formula=`301 − 302 ${adjOp} 303 − 304`;
-  return {taxable,tax,cells:[
-    {code:'301',label:'Ümumi gəlir',value:inp.revenue,op:'',src:'ƏDV körpüsü + e-Qaimə'},
-    {code:'302',label:'Gəlirdən çıxılan xərclər',value:inp.deductible,op:'−',src:'Təsnifat (çıxılan)'},
-    {code:'303',label:'Vergi düzəlişləri (amortizasiya fərqi)',value:Math.abs(inp.taxAdjust),op:adjOp,src:'Mühasibat ≠ vergi amortizasiyası'},
-    {code:'304',label:'Köçürülən zərər (istifadə)',value:inp.lossUsed,op:'−',src:'Zərər körpüsü'},
-    {code:'310',label:'Vergi tutulan mənfəət',value:taxable,op:'=',src:formula,strong:true},
-    {code:'320',label:`Mənfəət vergisi (${inp.rate*100}%)`,value:tax,op:'',src:`310 × ${inp.rate*100}%`,strong:true},
-  ]};
+  const cells=[
+    {sec:'Gəlir',code:'1001',label:'Ümumi gəlir',value:inp.revenue,op:'',src:'ƏDV körpüsü + e-Qaimə'},
+    {sec:'Xərclər',code:'2073',label:'Gəlirdən çıxılan xərclərin cəmi',value:inp.deductible,op:'−',src:'Təsnifat (çıxılan)'},
+  ];
+  if(inp.taxAdjust) cells.push({sec:'Düzəlişlər',code:'—',label:'Vergi düzəlişləri (amortizasiya fərqi)',value:Math.abs(inp.taxAdjust),op:adjOp,src:'Mühasibat ≠ vergi amortizasiyası',verify:true});
+  if(inp.lossUsed) cells.push({sec:'Düzəlişlər',code:'—',label:'Köçürülən zərərin istifadəsi',value:inp.lossUsed,op:'−',src:'Zərər körpüsü',verify:true});
+  if(loss>0){
+    cells.push({sec:'Vergi hesabı',code:'3002',label:'Zərər',value:loss,op:'=',src:'Xərclər gəliri üstələyir — vergi tutulan mənfəət yoxdur',strong:true});
+    cells.push({sec:'Vergi hesabı',code:'3001',label:'Vergi tutulan mənfəət',value:0,op:'',src:'Zərərli dövr'});
+  } else {
+    cells.push({sec:'Vergi hesabı',code:'3001',label:'Vergi tutulan mənfəət',value:profit,op:'=',src:`1001 − 2073 ${adjOp} düzəlişlər`,strong:true});
+  }
+  cells.push({sec:'Vergi hesabı',code:'3005',label:'Mənfəət vergisinin dərəcəsi',value:inp.rate*100,op:'',src:'Cari qayda (2025)',pct:true});
+  cells.push({sec:'Vergi hesabı',code:'3004',label:'Hesablanmış mənfəət vergisi',value:tax,op:'',src:`3001 × ${inp.rate*100}%`,strong:true});
+  return {profit,loss,tax,cells};
 }
 function viewDeclare(){
-  const {cells}=buildDeclaration(period().declInput);
-  const rows=cells.map(c=>`
-    <div class="drow" style="${c.strong?`background:${C('brassBg')}`:''}">
-      <span class="dcode" style="${c.strong?'background:#fff':''}">${c.code}</span>
-      <div class="dn"><div class="t">${c.label}</div>
-        <div class="s">${svg(I.scan,{size:11,color:C('inkFaint')})} ${c.src}</div></div>
-      <span class="dval" style="color:${c.strong?C('brass'):C('ink')};font-weight:${c.strong?700:500}">${c.op?c.op+' ':''}${azn(c.value)}</span>
-    </div>`).join('');
-  return vhead('04','Bəyannamə xanaları','Vergi tutulan mənfəət komponentlərdən avtomatik hesablanır (301 − 302 + 303 − 304). Rəqəmlər sərt yazılmır — hər xana mənbəyə qədər izlənə bilər.')
+  const {loss,cells}=buildDeclaration(period().declInput);
+  const secOrder=['Gəlir','Xərclər','Düzəlişlər','Vergi hesabı'];
+  const rows=secOrder.map(sec=>{
+    const items=cells.filter(c=>c.sec===sec);
+    if(!items.length) return '';
+    const body=items.map(c=>{
+      const val=c.pct?c.value+'%':(c.op?c.op+' ':'')+azn2(c.value);
+      return `<div class="drow" style="${c.strong?`background:${C('brassBg')}`:''}">
+        <span class="dcode${c.code==='—'?' vcode':''}" style="${c.strong?'background:#fff':''}">${c.code}</span>
+        <div class="dn"><div class="t">${c.label}${c.verify?` <span class="vflag">${svg(I.warn,{size:10,color:C('review')})} kod təsdiqlənməli</span>`:''}</div>
+          <div class="s">${svg(I.scan,{size:11,color:C('inkFaint')})} ${c.src}</div></div>
+        <span class="dval" style="color:${c.strong?(loss&&c.code==='3002'?C('flag'):C('brass')):C('ink')};font-weight:${c.strong?700:500}">${val}</span>
+      </div>`;
+    }).join('');
+    return `<div class="dsec2">${sec}</div>${body}`;
+  }).join('');
+  const notice=loss>0
+    ? `Bu dövr <b>zərərlə</b> bağlanır (${azn2(loss)}) — mənfəət vergisi 0. Zərər (3002) növbəti illərə köçürülə bilər (5 il · VM 121?).`
+    : period().declareNotice;
+  return vhead('04','Bəyannamə xanaları — MENFEET_1','Rəqəmlər rəsmi mənfəət bəyannaməsi (MENFEET_1) göstərici kodlarına uyğun formalaşır. Vergi tutulan mənfəət/zərər deterministik hesablanır; hər xana mənbəyə qədər izlənə bilər.')
     +`<div class="card">${rows}</div>
-      <div class="noticebar">${svg(I.warn,{size:15,color:C('flag')})}<p>${period().declareNotice}</p></div>`;
+      <div class="noticebar" style="background:${loss>0?C('flagBg'):C('flagBg')}">${svg(I.warn,{size:15,color:C('flag')})}<p>${notice}</p></div>
+      <p style="font-size:11px;color:${C('inkFaint')};margin-top:12px;line-height:1.5">Tam forma həmçinin balans bölmələrini (aktivlər 4xxx, kapital 5xxx–7xxx) əhatə edir — onlar ingestion mərhələsində doldurulacaq. Gəlir və xərclərin alt-göstəriciləri (1002…1072, 2001…2071) təsnifatdan formalaşacaq. Bəzi alt-kodlar rəsmi XSD (MENFEET_1.xsd) ilə təsdiqlənməlidir.</p>`;
 }
 const VIEWS={sources:viewSources,classify:viewClassify,reconcile:viewReconcile,declare:viewDeclare};
 

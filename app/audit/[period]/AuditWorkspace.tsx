@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Masthead } from "../../_components/Masthead";
 import { Icon } from "../../_components/Icon";
-import { azn, aznSigned } from "../../_components/format";
+import { azn, azn2, aznSigned } from "../../_components/format";
 import type { ClassifyKind, SamplePeriod } from "@/app-data/sample";
 import type { BridgeResult } from "@/domain/reconciliation/types";
 import type { DeclarationCell } from "@/domain/declaration/builder";
@@ -327,44 +327,58 @@ function BridgeCard({ b }: { b: BridgeResult }) {
 }
 
 /* ── 04 Bəyannamə ──
-   Xanalar buildProfitDeclaration() ilə hesablanır (tək mənbə). Hər sətir operatoru ilə
-   göstərilir ki, 310 = 301 − 302 ± 303 − 304 arifmetikası açıq görünsün. */
+   Xanalar buildProfitDeclaration() ilə hesablanır (tək mənbə), rəsmi MENFEET_1 göstərici
+   kodları ilə. Nəticə mənfidirsə → 3002 (Zərər). Hər sətir operatoru ilə göstərilir. */
+const DECL_SECTIONS = ["Gəlir", "Xərclər", "Düzəlişlər", "Vergi hesabı"];
+
 function DeclareView({ cells, notice }: { cells: DeclarationCell[]; notice: string }) {
-  const c303 = cells.find((c) => c.code === "303");
-  const adjOp = c303 && c303.value < 0 ? "−" : "+";
-  const opFor = (code: string) =>
-    code === "302" ? "−" : code === "303" ? adjOp : code === "304" ? "−" : code === "310" ? "=" : "";
-  const strongCode = (code: string) => code === "310" || code === "320";
-  const srcFor = (c: DeclarationCell) => (c.code === "310" ? `301 − 302 ${adjOp} 303 − 304` : c.source);
+  const isLoss = cells.some((c) => c.code === "3002");
   return (
     <>
       <VHead
         n="04"
-        title="Bəyannamə xanaları"
-        desc="Vergi tutulan mənfəət komponentlərdən avtomatik hesablanır (301 − 302 + 303 − 304). Rəqəmlər sərt yazılmır — hər xana mənbəyə qədər izlənə bilər."
+        title="Bəyannamə xanaları — MENFEET_1"
+        desc="Rəqəmlər rəsmi mənfəət bəyannaməsi (MENFEET_1) göstərici kodlarına uyğun formalaşır. Vergi tutulan mənfəət/zərər deterministik hesablanır; hər xana mənbəyə qədər izlənə bilər."
       />
       <div className="card">
-        {cells.map((c) => {
-          const strong = strongCode(c.code);
-          const op = opFor(c.code);
+        {DECL_SECTIONS.map((sec) => {
+          const items = cells.filter((c) => c.section === sec);
+          if (!items.length) return null;
           return (
-            <div key={c.code} className="drow" style={strong ? { background: "var(--brassBg)" } : undefined}>
-              <span className="dcode" style={strong ? { background: "#fff" } : undefined}>
-                {c.code}
-              </span>
-              <div className="dn">
-                <div className="t">{c.label}</div>
-                <div className="s">
-                  <Icon name="scan" size={11} color="var(--inkFaint)" /> {srcFor(c)}
-                </div>
-              </div>
-              <span
-                className="dval"
-                style={{ color: strong ? "var(--brass)" : "var(--ink)", fontWeight: strong ? 700 : 500 }}
-              >
-                {op ? op + " " : ""}
-                {azn(c.code === "303" ? Math.abs(c.value) : c.value)}
-              </span>
+            <div key={sec}>
+              <div className="dsec2">{sec}</div>
+              {items.map((c, i) => {
+                const lossVal = c.code === "3002";
+                return (
+                  <div key={c.code + i} className="drow" style={c.strong ? { background: "var(--brassBg)" } : undefined}>
+                    <span className={`dcode${c.code === "—" ? " vcode" : ""}`} style={c.strong ? { background: "#fff" } : undefined}>
+                      {c.code}
+                    </span>
+                    <div className="dn">
+                      <div className="t">
+                        {c.label}
+                        {c.verify && (
+                          <span className="vflag">
+                            <Icon name="warn" size={10} color="var(--review)" /> kod təsdiqlənməli
+                          </span>
+                        )}
+                      </div>
+                      <div className="s">
+                        <Icon name="scan" size={11} color="var(--inkFaint)" /> {c.source}
+                      </div>
+                    </div>
+                    <span
+                      className="dval"
+                      style={{
+                        color: c.strong ? (lossVal ? "var(--flag)" : "var(--brass)") : "var(--ink)",
+                        fontWeight: c.strong ? 700 : 500,
+                      }}
+                    >
+                      {c.pct ? `${c.value}%` : `${c.op ? c.op + " " : ""}${azn2(c.value)}`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
@@ -373,6 +387,11 @@ function DeclareView({ cells, notice }: { cells: DeclarationCell[]; notice: stri
         <Icon name="warn" size={15} color="var(--flag)" />
         <p>{notice}</p>
       </div>
+      <p style={{ fontSize: 11, color: "var(--inkFaint)", marginTop: 12, lineHeight: 1.5 }}>
+        Tam forma həmçinin balans bölmələrini (aktivlər 4xxx, kapital 5xxx–7xxx) əhatə edir — onlar ingestion
+        mərhələsində doldurulacaq. Bəzi alt-kodlar rəsmi XSD (MENFEET_1.xsd) ilə təsdiqlənməlidir.
+        {isLoss ? " Bu dövr zərərlə bağlanır — mənfəət vergisi 0." : ""}
+      </p>
     </>
   );
 }
