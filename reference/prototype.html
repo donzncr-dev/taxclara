@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bəyannamə · Audit</title>
+<style>
+  :root{
+    --paper:#F6F4EE; --card:#FFFFFF; --ink:#14202E; --inkSoft:#51616F;
+    --inkFaint:#8A97A2; --hair:#E4E0D6; --hairSoft:#EFECE4;
+    --brass:#A67C2E; --brassBg:#F3ECDC;
+    --ok:#1E6B52; --okBg:#E7F1EC; --flag:#A5341F; --flagBg:#F6E7E3;
+    --review:#9A6A12; --reviewBg:#F5EBD6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper); color:var(--ink); line-height:1.4;
+    font-size:14px; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px;}
+
+  /* masthead */
+  header.top{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:20px;border-bottom:1px solid var(--hair);margin-bottom:24px;}
+  .brandrow{display:flex;align-items:center;gap:12px;}
+  .logo{width:36px;height:36px;border-radius:9px;background:var(--ink);
+    display:flex;align-items:center;justify-content:center;}
+  .brand-t{font-weight:600;font-size:15px;letter-spacing:-.2px;}
+  .brand-t .dot{color:var(--brass);}
+  .brand-s{font-size:11px;color:var(--inkFaint);margin-top:1px;}
+  .statuschip{display:flex;align-items:center;gap:7px;border-radius:999px;
+    padding:6px 12px;border:1px solid;font-size:12px;font-weight:500;}
+
+  /* layout */
+  .cols{display:flex;gap:24px;}
+  nav.steps{width:208px;flex-shrink:0;}
+  .steplist{display:flex;flex-direction:column;gap:6px;}
+  .step{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
+    text-align:left;background:transparent;border:none;cursor:pointer;color:var(--inkSoft);
+    font-size:13px;font-family:inherit;width:100%;transition:background .12s;}
+  .step:hover{background:var(--hairSoft);}
+  .step.on{background:var(--ink);color:#fff;}
+  .step .num{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;color:var(--inkFaint);}
+  .step.on .num{color:var(--brass);}
+  .step .lbl{flex:1;font-weight:500;}
+  .step .fdot{width:6px;height:6px;border-radius:999px;background:var(--flag);}
+  .step.on .fdot{background:var(--brass);}
+  main{flex:1;min-width:0;}
+
+  /* view head */
+  .vhead{margin-bottom:20px;}
+  .vhead .r{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .vhead .n{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:3px;color:var(--brass);}
+  .vhead h2{font-size:18px;font-weight:600;}
+  .vhead p{font-size:12.5px;color:var(--inkSoft);max-width:560px;}
+
+  /* generic */
+  .card{background:var(--card);border:1px solid var(--hair);border-radius:12px;}
+  .pill{font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;border:1px solid;white-space:nowrap;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  /* sources */
+  .src{display:flex;gap:14px;padding:16px;}
+  .src .ic{width:36px;height:36px;border-radius:9px;background:var(--hairSoft);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .src .nm{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .src .nm span{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .src .note{font-size:11.5px;color:var(--inkFaint);margin-top:2px;}
+  .src .det{font-size:12px;color:var(--inkSoft);margin-top:6px;}
+
+  /* classify */
+  .cprog{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--inkSoft);margin-bottom:12px;}
+  .cprog b{color:var(--ink);}
+  .crow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--hairSoft);}
+  .crow:last-child{border-bottom:none;}
+  .chk{width:20px;height:20px;border-radius:6px;border:1px solid var(--inkFaint);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;background:transparent;}
+  .chk.on{background:var(--ok);border-color:var(--ok);}
+  .crow .cn{flex:1;min-width:0;}
+  .crow .cn .t{font-weight:500;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .crow .cn .norm{font-size:11px;color:var(--inkFaint);margin-top:2px;}
+  .normtag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--review);}
+  .amt{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--inkSoft);}
+
+  /* reconcile */
+  .stats{display:flex;gap:12px;margin-bottom:16px;}
+  .stat{flex:1;border:1px solid var(--hair);background:var(--card);border-radius:9px;padding:10px 14px;}
+  .stat .v{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;line-height:1;}
+  .stat .l{font-size:11px;color:var(--inkFaint);margin-top:6px;}
+  .bridges{display:grid;gap:14px;}
+  .bhead{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--hairSoft);}
+  .bhead .t{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;}
+  .bbody{padding:16px 20px;}
+  .brow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
+  .brow .lb{font-size:12.5px;}
+  .brow .vl{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap;}
+  .basis{font-size:11px;line-height:1.35;margin-top:2px;padding-left:12px;color:var(--inkFaint);}
+  .bline{margin-top:8px;}
+  .bsep{margin-top:12px;padding-top:12px;border-top:1px solid var(--hairSoft);}
+  .verdict{margin-top:12px;border-radius:9px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;}
+  .verdict .vt{font-size:12.5px;font-weight:500;}
+  .verdict .vn{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;}
+  .verdict p{font-size:12px;line-height:1.35;margin-top:4px;color:var(--inkSoft);}
+
+  /* declaration */
+  .drow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--hairSoft);}
+  .drow:last-child{border-bottom:none;}
+  .dcode{font-family:ui-monospace,monospace;font-size:11px;padding:2px 6px;border-radius:4px;background:var(--hairSoft);color:var(--inkSoft);}
+  .drow .dn{flex:1;min-width:0;}
+  .drow .dn .t{font-weight:500;font-size:13px;}
+  .drow .dn .s{font-size:11px;color:var(--inkFaint);margin-top:2px;display:flex;align-items:center;gap:4px;}
+  .dval{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13.5px;}
+  .noticebar{margin-top:12px;border-radius:9px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;background:var(--flagBg);}
+  .noticebar p{font-size:12px;line-height:1.35;color:var(--inkSoft);}
+
+  footer{margin-top:32px;padding-top:20px;border-top:1px solid var(--hair);
+    font-size:11px;line-height:1.6;color:var(--inkFaint);}
+
+  @media(max-width:760px){
+    .cols{flex-direction:column;}
+    nav.steps{width:100%;}
+    .steplist{flex-direction:row;overflow-x:auto;padding-bottom:4px;}
+    .step{white-space:nowrap;}
+  }
+  .hide-sm{}
+  @media(max-width:640px){.hide-sm{display:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- masthead -->
+  <header class="top">
+    <div class="brandrow">
+      <div class="logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A67C2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l3-8 3 8c-2 1.5-4 1.5-6 0"/><path d="M2 16l3-8 3 8c-2 1.5-4 1.5-6 0"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+      </div>
+      <div>
+        <div class="brand-t">Bəyannamə<span class="dot">·</span>Audit</div>
+        <div class="brand-s">Mənfəət bəyannaməsi · uyğunsuzluq yoxlaması · 2025</div>
+      </div>
+    </div>
+    <div class="statuschip hide-sm" id="topchip"></div>
+  </header>
+
+  <div class="cols">
+    <!-- step nav -->
+    <nav class="steps">
+      <div class="steplist" id="steplist"></div>
+    </nav>
+    <!-- content -->
+    <main id="main"></main>
+  </div>
+
+  <footer>
+    İlkin prototip · nümunə məlumatları ilə. Normalar (təmsilçilik, ezamiyyə) və maddə nömrələri istifadədən əvvəl
+    cari qanunvericiliklə (e-qanun.az) təsdiqlənməlidir. Yekun peşəkar mülahizə mühasibə aiddir.
+  </footer>
+</div>
+
+<script>
+/* ── icons ── */
+const I = {
+  scale:'<path d="M16 16l3-8 3 8c-2 1.5-4 1.5-6 0"/><path d="M2 16l3-8 3 8c-2 1.5-4 1.5-6 0"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  sheet:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8M8 9h2"/>',
+  bank:'<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/>',
+  receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8M8 11h8M8 15h5"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  building:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M9 6h6M9 10h6M9 14h6M9 18h6"/>',
+  shieldOk:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M9 12l2 2 4-4"/>',
+  shieldQ:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M9.5 9a2.5 2.5 0 1 1 3 2.4c-.6.2-1 .8-1 1.6"/><path d="M12 16h.01"/>',
+  shieldA:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4M12 15h.01"/>',
+  warn:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+  ok:'<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m9 11 3 3L22 4"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+  chev:'<path d="m9 18 6-6-6-6"/>',
+};
+function svg(p,{size=16,color="currentColor",sw=2}={}){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+const CV = getComputedStyle(document.documentElement);
+const C = k => CV.getPropertyValue('--'+k).trim();
+const azn = n => new Intl.NumberFormat('az-AZ',{maximumFractionDigits:0}).format(n)+' ₼';
+
+/* ── data ── */
+const SOURCES=[
+ {ic:'sheet',name:'1C ixracı (Excel)',note:'Baş kitab · hesablar planı',status:'review',det:'Sxem tanındı, 3 hesab əl ilə uyğunlaşdırılmalıdır'},
+ {ic:'bank',name:'Bank çıxarışı',note:'Kapital Bank · AZN hesabı',status:'ok',det:'412 əməliyyat oxundu'},
+ {ic:'receipt',name:'e-Qaimələr',note:'Satış qaimələri · illik',status:'ok',det:'1 250 200 ₼ · 318 qaimə'},
+ {ic:'file',name:'ƏDV bəyannaməsi',note:'Rüblük · cəmlənmiş',status:'ok',det:'Dövriyyə: 1 245 000 ₼'},
+ {ic:'users',name:'Əməkhaqqı / DSMF',note:'İllik fond + baza',status:'ok',det:'Fond: 186 500 ₼'},
+ {ic:'building',name:'Əsas vəsaitlər',note:'Amortizasiya cədvəli',status:'review',det:'2 obyektdə istismar tarixi çatışmır'},
+ {ic:'file',name:'2024 mənfəət bəy.',note:'Əvvəlki il · zərər qalığı',status:'ok',det:'Köçürülən zərər: 62 000 ₼'},
+];
+const CLS={deduct:{l:'Çıxılan',c:'ok',bg:'okBg'},nondeduct:{l:'Çıxılmayan',c:'flag',bg:'flagBg'},
+  limit:{l:'Məhdudlaşan',c:'review',bg:'reviewBg'},adjust:{l:'Vergi düzəlişi',c:'brass',bg:'brassBg'}};
+const CLASSIFY=[
+ {name:'Əməkhaqqı',amount:186500,s:'deduct'},
+ {name:'İcarə',amount:48000,s:'deduct'},
+ {name:'Kommunal',amount:12400,s:'deduct'},
+ {name:'Reklam',amount:21000,s:'deduct'},
+ {name:'Təmsilçilik',amount:9800,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır'},
+ {name:'Ezamiyyə',amount:6300,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır'},
+ {name:'Cərimə/faiz (büdcə)',amount:3100,s:'nondeduct'},
+ {name:'Amortizasiya',amount:27400,s:'adjust',norm:'Mühasibat ≠ vergi amortizasiyası — düzəliş'},
+];
+const BRIDGES=[
+ {id:'vat',title:'ƏDV dövriyyəsi ↔ Mənfəət gəliri',
+  start:{label:'ƏDV bəyannaməsi dövriyyəsi',value:1245000},
+  lines:[{label:'(–) Cari ildə alınan, gələn ilə aid avanslar',value:-38000,basis:'Avans ƏDV obyektidir, gəlir hələ tanınmayıb (VM 164/166)'},
+         {label:'(–) Əsas vəsait satışında ƏDV bazası ilə gəlir fərqi',value:-4000,basis:'ƏDV tam dəyərdən; gəlir yalnız qalıq dəyərdən yuxarı fərqdən'}],
+  expectedLabel:'Gözlənilən mənfəət gəliri',actual:{label:'Bəyannamədəki gəlir',value:1198000},tol:500},
+ {id:'dsmf',title:'Əməkhaqqı fondu ↔ DSMF bazası',
+  start:{label:'Mühasibat əməkhaqqı fondu',value:186500},
+  lines:[{label:'(–) DSMF-yə cəlb olunmayan ödənişlər',value:-4000,basis:'Müavinətlər / cəlb olunmayan ödəniş növləri'},
+         {label:'(–) MHM & xidmət müqavilələri fərqi',value:-1300,basis:'Fərqli baza tətbiqi'}],
+  expectedLabel:'Gözlənilən DSMF bazası',actual:{label:'DSMF hesabatı bazası',value:181200},tol:500},
+ {id:'loss',title:'Zərərin köçürülməsi — kəsilməzlik',
+  start:{label:'2024 bəyannaməsində köçürülən zərər',value:62000},
+  lines:[{label:'(–) 2025 açılışında istifadə edilən zərər',value:-55000,basis:'Cari il bəyannaməsində tətbiq olunan məbləğ'}],
+  expectedLabel:'Qalmalı olan zərər qalığı',actual:{label:'Faktiki göstərilən qalıq',value:0},tol:0,
+  note:'5 illik köçürmə hüququ (VM 121) — istifadə olunmayan 7 000 ₼ itirilir və ya yanlış göstərilib.'},
+ {id:'eqaime',title:'e-Qaimələr ↔ ƏDV dövriyyəsi',
+  start:{label:'e-Qaimələr üzrə satış',value:1250200},
+  lines:[{label:'(–) Ləğv / korrektə edilmiş qaimələr',value:-5000,basis:'İl ərzində ləğv olunan qaimələr'}],
+  expectedLabel:'Gözlənilən ƏDV dövriyyəsi',actual:{label:'ƏDV bəyannaməsi dövriyyəsi',value:1245000},tol:500},
+];
+function resid(b){const e=b.start.value+b.lines.reduce((s,l)=>s+l.value,0);
+  const r=e-b.actual.value;return{expected:e,residual:r,flagged:Math.abs(r)>b.tol};}
+
+const STEPS=[
+ {id:'sources',n:'01',label:'Mənbələr'},
+ {id:'classify',n:'02',label:'Təsnifat'},
+ {id:'reconcile',n:'03',label:'Uyğunsuzluq'},
+ {id:'declare',n:'04',label:'Bəyannamə'},
+];
+
+let active='reconcile';
+const confirmed={};
+const flaggedCount=()=>BRIDGES.filter(b=>resid(b).flagged).length;
+
+/* ── renderers ── */
+function statusIcon(st){
+  if(st==='ok')return svg(I.shieldOk,{color:C('ok')});
+  if(st==='review')return svg(I.shieldQ,{color:C('review')});
+  return svg(I.shieldA,{color:C('flag')});
+}
+function pill(text,c,bg){
+  return `<span class="pill" style="color:${C(c)};background:${C(bg)};border-color:${C(c)}33">${text}</span>`;
+}
+function vhead(n,t,d){
+  return `<div class="vhead"><div class="r"><span class="n">${n}</span><h2>${t}</h2></div><p>${d}</p></div>`;
+}
+function brow(label,value,{strong,muted,accent}={}){
+  const neg=value<0;
+  const col=accent?C('brass'):muted?C('inkSoft'):C('ink');
+  const w=(strong||accent)?600:500;
+  return `<div class="brow"><span class="lb" style="color:${muted?C('inkSoft'):C('ink')};${(strong||accent)?'font-weight:500':''}">${label}</span>
+    <span class="vl" style="color:${col};font-weight:${w}">${neg?'− ':''}${azn(Math.abs(value))}</span></div>`;
+}
+
+function viewSources(){
+  const cards=SOURCES.map(s=>`
+    <div class="card src">
+      <div class="ic">${svg(I[s.ic],{color:C('ink'),size:17})}</div>
+      <div style="min-width:0;flex:1">
+        <div class="nm"><span>${s.name}</span>${statusIcon(s.status)}</div>
+        <div class="note">${s.note}</div>
+        <div class="det">${s.det}</div>
+      </div>
+    </div>`).join('');
+  return vhead('01','Mənbələr','Hər fayl oxunur və etibarlılıq səviyyəsi ilə işarələnir. Aşağı etibarlılıq — əl ilə təsdiq lazımdır.')
+    +`<div class="grid2">${cards}</div>`;
+}
+
+function viewClassify(){
+  const done=Object.values(confirmed).filter(Boolean).length;
+  const rows=CLASSIFY.map((r,i)=>{
+    const cl=CLS[r.s];const on=confirmed[i];
+    return `<div class="crow">
+      <button class="chk ${on?'on':''}" data-toggle="${i}">${on?svg(I.check,{size:13,color:'#fff'}):''}</button>
+      <div class="cn">
+        <div class="t">${r.name}${r.norm?`<span class="normtag">${svg(I.warn,{size:11,color:C('review')})} norma yoxlaması</span>`:''}</div>
+        ${r.norm?`<div class="norm">${r.norm}</div>`:''}
+      </div>
+      <span class="amt">${azn(r.amount)}</span>
+      ${pill(cl.l,cl.c,cl.bg)}
+    </div>`;
+  }).join('');
+  return vhead('02','Təsnifat — təklif → təsdiq','Sistem hər sətir üçün təsnifat təklif edir. Yekun qərar səndədir; norma ilə məhdudlaşan xərclər ayrıca işarələnir.')
+    +`<div class="cprog"><b class="mono">${done}</b> / ${CLASSIFY.length} sətir təsdiqləndi</div>
+      <div class="card">${rows}</div>
+      <p style="font-size:11.5px;color:${C('inkFaint')};margin-top:12px">Heç bir sətir avtomatik yekunlaşmır — təsdiq düyməsi ilə sən qərar verirsən.</p>`;
+}
+
+function bridge(b){
+  const {expected,residual,flagged}=resid(b);
+  const sc=flagged?C('flag'):C('ok'), sbg=flagged?C('flagBg'):C('okBg');
+  const lines=b.lines.map(l=>`<div class="bline">${brow(l.label,l.value,{muted:true})}<div class="basis">${l.basis}</div></div>`).join('');
+  const verdictMsg=flagged
+    ?(b.note||'Bu məbləğ bilinən qanuni düzəlişlərlə izah olunmur — təqdimatdan əvvəl yoxlanmalıdır.')
+    :'';
+  return `<div class="card">
+    <div class="bhead">
+      <div class="t">${flagged?svg(I.warn,{size:17,color:C('flag')}):svg(I.ok,{size:17,color:C('ok')})}${b.title}</div>
+      ${pill(flagged?`İzahsız ${azn(Math.abs(residual))}`:'Uzlaşdı',flagged?'flag':'ok',flagged?'flagBg':'okBg')}
+    </div>
+    <div class="bbody">
+      ${brow(b.start.label,b.start.value,{strong:true})}
+      ${lines}
+      <div class="bsep">${brow(b.expectedLabel,expected,{accent:true})}</div>
+      <div style="margin-top:6px">${brow(b.actual.label,b.actual.value)}</div>
+      <div class="verdict" style="background:${sbg}">
+        <div style="margin-top:1px">${flagged?svg(I.warn,{size:16,color:C('flag')}):svg(I.check,{size:16,color:C('ok')})}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <span class="vt" style="color:${sc}">${flagged?'İzah olunmayan qalıq':'Tam izah olundu'}</span>
+            <span class="vn" style="color:${sc}">${azn(Math.abs(residual))}</span>
+          </div>
+          ${verdictMsg?`<p>${verdictMsg}</p>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewReconcile(){
+  const f=flaggedCount();
+  const stats=`<div class="stats">
+    <div class="stat"><div class="v" style="color:${C('ink')}">${BRIDGES.length}</div><div class="l">körpü</div></div>
+    <div class="stat"><div class="v" style="color:${C('flag')}">${f}</div><div class="l">bayraq</div></div>
+    <div class="stat"><div class="v" style="color:${C('ok')}">${BRIDGES.length-f}</div><div class="l">uzlaşdı</div></div>
+  </div>`;
+  return vhead('03','Uyğunsuzluq auditi','Hər körpü bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayır.')
+    +stats+`<div class="bridges">${BRIDGES.map(bridge).join('')}</div>`;
+}
+
+function viewDeclare(){
+  const cells=[
+   {code:'301',label:'Ümumi gəlir',value:1198000,src:'ƏDV körpüsü + e-Qaimə'},
+   {code:'302',label:'Gəlirdən çıxılan xərclər',value:862400,src:'Təsnifat (çıxılan)'},
+   {code:'303',label:'Vergi düzəlişləri (amort.)',value:4300,src:'Amortizasiya fərqi'},
+   {code:'304',label:'Köçürülən zərər (istifadə)',value:55000,src:'Zərər körpüsü'},
+   {code:'310',label:'Vergi tutulan mənfəət',value:276300,src:'Hesablanmış',strong:true},
+   {code:'320',label:'Mənfəət vergisi (20%)',value:55260,src:'Hesablanmış',strong:true},
+  ];
+  const rows=cells.map(c=>`
+    <div class="drow" style="${c.strong?`background:${C('brassBg')}`:''}">
+      <span class="dcode" style="${c.strong?'background:#fff':''}">${c.code}</span>
+      <div class="dn"><div class="t">${c.label}</div>
+        <div class="s">${svg(I.scan,{size:11,color:C('inkFaint')})} ${c.src}</div></div>
+      <span class="dval" style="color:${c.strong?C('brass'):C('ink')};font-weight:${c.strong?700:500}">${azn(c.value)}</span>
+    </div>`).join('');
+  return vhead('04','Bəyannamə xanaları','Uzlaşdırılmış rəqəmlər bəyannamə xanalarına yerləşir. Hər xana mənbəyə qədər izlənə bilər.')
+    +`<div class="card">${rows}</div>
+      <div class="noticebar">${svg(I.warn,{size:15,color:C('flag')})}
+        <p>2 açıq bayraq mövcuddur (mənfəət gəliri +5 000, zərər qalığı 7 000). Bəyannamə təqdim edilməzdən əvvəl bunlar həll olunmalıdır.</p></div>`;
+}
+
+const VIEWS={sources:viewSources,classify:viewClassify,reconcile:viewReconcile,declare:viewDeclare};
+
+function renderNav(){
+  const f=flaggedCount();
+  document.getElementById('steplist').innerHTML=STEPS.map(s=>{
+    const on=active===s.id;const sf=s.id==='reconcile'&&f>0;
+    return `<button class="step ${on?'on':''}" data-step="${s.id}">
+      <span class="num">${s.n}</span><span class="lbl">${s.label}</span>
+      ${sf?'<span class="fdot"></span>':''}${on?svg(I.chev,{size:14,color:C('brass')}):''}</button>`;
+  }).join('');
+}
+function renderChip(){
+  const f=flaggedCount();
+  const el=document.getElementById('topchip');
+  const c=f?C('flag'):C('ok'), bg=f?C('flagBg'):C('okBg');
+  el.style.borderColor=c+'44'; el.style.background=bg; el.style.color=c;
+  el.innerHTML=(f?svg(I.warn,{size:14,color:c}):svg(I.ok,{size:14,color:c}))+`<span>${f?f+' açıq bayraq':'Hazır'}</span>`;
+}
+function renderMain(){document.getElementById('main').innerHTML=VIEWS[active]();}
+function renderAll(){renderNav();renderChip();renderMain();}
+
+document.addEventListener('click',e=>{
+  const st=e.target.closest('[data-step]');
+  if(st){active=st.dataset.step;renderAll();return;}
+  const tg=e.target.closest('[data-toggle]');
+  if(tg){const i=tg.dataset.toggle;confirmed[i]=!confirmed[i];renderMain();}
+});
+renderAll();
+</script>
+</body>
+</html>

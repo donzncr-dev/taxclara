@@ -1,0 +1,246 @@
+// Bəyannamə·Audit — data modeli
+// Prinsiplər: dövr-mərkəzli · multi-tenant · qaydalar versiyalı · snapshot/kilid · tam audit log
+// Bax: CLAUDE.md bölmə 2.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// KİRAYƏÇİ / TENANT — izolyasiyanın kökü
+// Hər mühasib firması bir Tenant. Bütün data buna bağlıdır.
+// ─────────────────────────────────────────────
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String   // firma adı (məs. SM Consulting)
+  createdAt DateTime @default(now())
+
+  users     User[]
+  companies Company[]
+}
+
+// ─────────────────────────────────────────────
+// İSTİFADƏÇİLƏR & ROLLAR
+// ─────────────────────────────────────────────
+enum Role {
+  ADMIN       // sistem, qaydalar, istifadəçilər, audit
+  ACCOUNTANT  // əsas istifadəçi — müştəri, data, bəyannamə
+  REVIEWER    // senior — təsdiq (dörd göz)
+  CLIENT      // müştəri — məhdud görünüş (sonrakı faza)
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  email     String   @unique
+  name      String
+  role      Role     @default(ACCOUNTANT)
+  createdAt DateTime @default(now())
+
+  // ACCOUNTANT hansı şirkətlərə baxır (izolyasiya)
+  assignments CompanyAssignment[]
+  auditEvents AuditEvent[]
+
+  @@index([tenantId])
+}
+
+// ─────────────────────────────────────────────
+// MÜŞTƏRİ ŞİRKƏTLƏR
+// ─────────────────────────────────────────────
+model Company {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  voen      String   // vergi ödəyicisinin identifikasiya nömrəsi
+  createdAt DateTime @default(now())
+
+  assignments CompanyAssignment[]
+  periods     TaxPeriod[]
+
+  @@unique([tenantId, voen])
+  @@index([tenantId])
+}
+
+// Hansı mühasib hansı şirkətə cavabdehdir
+model CompanyAssignment {
+  id        String  @id @default(cuid())
+  userId    String
+  companyId String
+  user      User    @relation(fields: [userId], references: [id])
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@unique([userId, companyId])
+}
+
+// ─────────────────────────────────────────────
+// VERGİ DÖVRÜ — hər şeyin lövbəri
+// ─────────────────────────────────────────────
+model TaxPeriod {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id])
+  taxYear    Int      // qayda versiyasını seçir (2025 → 2025 ruleset)
+  label      String   // "2025 illik", "2025 Q1" və s.
+  locked     Boolean  @default(false) // snapshot alındıqda true
+  createdAt  DateTime @default(now())
+
+  sources        SourceFile[]
+  ledgerLines    LedgerLine[]
+  classifications Classification[]
+  bridgeRuns     BridgeRun[]
+  declarations   Declaration[]
+
+  @@unique([companyId, taxYear, label])
+  @@index([companyId])
+}
+
+// ─────────────────────────────────────────────
+// MƏNBƏ FAYLLAR & NORMALİZASİYA
+// ─────────────────────────────────────────────
+enum SourceKind {
+  ONEC_EXCEL      // 1C ixracı — ən aşağı etibarlılıq
+  BANK_STATEMENT
+  EQAIME          // e-Qaimələr
+  VAT_RETURN      // ƏDV bəyannaməsi
+  PAYROLL_DSMF
+  FIXED_ASSETS
+  PRIOR_PROFIT    // əvvəlki il mənfəət bəyannaməsi
+  MANUAL
+}
+
+enum ParseStatus {
+  OK
+  REVIEW   // qismən — əl ilə təsdiq lazımdır
+  FAILED
+}
+
+model SourceFile {
+  id          String      @id @default(cuid())
+  periodId    String
+  period      TaxPeriod   @relation(fields: [periodId], references: [id])
+  kind        SourceKind
+  fileName    String
+  status      ParseStatus @default(REVIEW)
+  confidence  Float       @default(0) // 0..1 — model əminliyi
+  meta        Json?       // parser çıxışı, xəbərdarlıqlar
+  uploadedAt  DateTime    @default(now())
+
+  ledgerLines LedgerLine[]
+
+  @@index([periodId])
+}
+
+// Bütün mənbələr vahid ledger sətrinə normallaşır
+model LedgerLine {
+  id          String      @id @default(cuid())
+  periodId    String
+  period      TaxPeriod   @relation(fields: [periodId], references: [id])
+  sourceId    String?
+  source      SourceFile? @relation(fields: [sourceId], references: [id])
+  account     String?     // hesab kodu (1C-dən)
+  description String
+  amount      Decimal     @db.Decimal(18, 2)
+  direction   String      // "income" | "expense" | "other"
+  occurredAt  DateTime?
+
+  classification Classification?
+
+  @@index([periodId])
+}
+
+// ─────────────────────────────────────────────
+// TƏSNİFAT — təklif → təsdiq
+// ─────────────────────────────────────────────
+enum Deductibility {
+  DEDUCT      // çıxılan
+  NONDEDUCT   // çıxılmayan
+  LIMIT       // norma ilə məhdudlaşan
+  ADJUST      // vergi düzəlişi (məs. amortizasiya fərqi)
+}
+
+model Classification {
+  id            String        @id @default(cuid())
+  periodId      String
+  period        TaxPeriod     @relation(fields: [periodId], references: [id])
+  ledgerLineId  String        @unique
+  ledgerLine    LedgerLine    @relation(fields: [ledgerLineId], references: [id])
+  category      String        // "Əməkhaqqı", "Təmsilçilik" və s.
+  suggested     Deductibility // sistem təklifi
+  confirmed     Deductibility? // mühasib təsdiqi (null = hələ təsdiqlənməyib)
+  normFlag      Boolean       @default(false) // norma yoxlaması lazımdır
+  confirmedById String?
+  confirmedAt   DateTime?
+
+  @@index([periodId])
+}
+
+// ─────────────────────────────────────────────
+// UYĞUNSUZLUQ KÖRPÜLƏRİ — nəticələr
+// (körpü tərifləri koddadır: src/domain/reconciliation/bridges.ts)
+// ─────────────────────────────────────────────
+model BridgeRun {
+  id          String    @id @default(cuid())
+  periodId    String
+  period      TaxPeriod @relation(fields: [periodId], references: [id])
+  bridgeKey   String    // "vat-profit", "payroll-dsmf" ...
+  startValue  Decimal   @db.Decimal(18, 2)
+  expected    Decimal   @db.Decimal(18, 2)
+  actual      Decimal   @db.Decimal(18, 2)
+  residual    Decimal   @db.Decimal(18, 2)
+  flagged     Boolean
+  lines       Json      // izahlı düzəliş sətirləri (snapshot)
+  ranAt       DateTime  @default(now())
+
+  @@index([periodId, bridgeKey])
+}
+
+// ─────────────────────────────────────────────
+// BƏYANNAMƏ — dörd göz axını + snapshot
+// ─────────────────────────────────────────────
+enum DeclarationStatus {
+  DRAFT       // hazırlanır
+  REVIEW      // baxışda
+  APPROVED    // təsdiqləndi
+  READY       // təqdim üçün hazır
+  SUBMITTED   // təqdim olundu (kilidli)
+}
+
+model Declaration {
+  id          String            @id @default(cuid())
+  periodId    String
+  period      TaxPeriod         @relation(fields: [periodId], references: [id])
+  kind        String            @default("PROFIT") // faza 1: PROFIT
+  status      DeclarationStatus @default(DRAFT)
+  cells       Json              // xana kodu → dəyər + mənbə izi
+  rulesetYear Int               // hansı qayda versiyası ilə hesablandı
+  snapshot    Json?             // təqdim anında dondurulmuş giriş datası
+  version     Int               @default(1)
+  createdAt   DateTime          @default(now())
+  submittedAt DateTime?
+
+  @@index([periodId])
+}
+
+// ─────────────────────────────────────────────
+// AUDIT LOG — tam əhatə (peşəkar məsuliyyət)
+// ─────────────────────────────────────────────
+model AuditEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String   // "classification.confirm", "bridge.sign", "declaration.submit" ...
+  entityType String
+  entityId   String
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+}

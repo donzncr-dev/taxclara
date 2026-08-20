@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taxclara.az — Bəyannamə hazırlama və uyğunsuzluq auditi</title>
+<style>
+  :root{
+    --paper:#F6F4EE; --card:#FFFFFF; --ink:#14202E; --inkSoft:#51616F;
+    --inkFaint:#8A97A2; --hair:#E4E0D6; --hairSoft:#EFECE4;
+    --brass:#A67C2E; --brassBg:#F3ECDC;
+    --ok:#1E6B52; --okBg:#E7F1EC; --flag:#A5341F; --flagBg:#F6E7E3;
+    --review:#9A6A12; --reviewBg:#F5EBD6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper); color:var(--ink); line-height:1.4;
+    font-size:14px; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px;}
+
+  /* masthead */
+  header.top{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:20px;border-bottom:1px solid var(--hair);margin-bottom:24px;}
+  .brandrow{display:flex;align-items:center;gap:12px;cursor:pointer;}
+  .logo{width:36px;height:36px;border-radius:9px;background:var(--ink);
+    display:flex;align-items:center;justify-content:center;}
+  .brand-t{font-weight:600;font-size:15px;letter-spacing:-.2px;}
+  .brand-t .dot{color:var(--brass);}
+  .brand-s{font-size:11px;color:var(--inkFaint);margin-top:1px;}
+  .statuschip{display:flex;align-items:center;gap:7px;border-radius:999px;
+    padding:6px 12px;border:1px solid;font-size:12px;font-weight:500;}
+
+  /* dashboard */
+  .dash-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;}
+  .dash-head h1{font-size:20px;font-weight:600;}
+  .dash-head p{font-size:12.5px;color:var(--inkSoft);margin-top:4px;}
+  .periods{display:grid;gap:12px;}
+  .period{display:flex;align-items:center;gap:16px;padding:16px 18px;cursor:pointer;
+    transition:border-color .12s,box-shadow .12s;}
+  .period:hover{border-color:var(--brass);box-shadow:0 1px 0 var(--brassBg);}
+  .period .pic{width:40px;height:40px;border-radius:9px;background:var(--ink);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .period .co{flex:1;min-width:0;}
+  .period .co .nm{font-weight:600;font-size:14.5px;}
+  .period .co .meta{font-size:11.5px;color:var(--inkFaint);margin-top:3px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .period .yr{font-family:ui-monospace,monospace;font-size:12px;color:var(--inkSoft);
+    padding:3px 9px;border-radius:6px;background:var(--hairSoft);}
+
+  /* layout */
+  .cols{display:flex;gap:24px;}
+  nav.steps{width:208px;flex-shrink:0;}
+  .backrow{margin-bottom:14px;}
+  .backbtn{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--inkSoft);
+    background:transparent;border:none;cursor:pointer;padding:4px 0;}
+  .backbtn:hover{color:var(--ink);}
+  .steplist{display:flex;flex-direction:column;gap:6px;}
+  .step{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
+    text-align:left;background:transparent;border:none;cursor:pointer;color:var(--inkSoft);
+    font-size:13px;font-family:inherit;width:100%;transition:background .12s;}
+  .step:hover{background:var(--hairSoft);}
+  .step.on{background:var(--ink);color:#fff;}
+  .step .num{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:2px;color:var(--inkFaint);}
+  .step.on .num{color:var(--brass);}
+  .step .lbl{flex:1;font-weight:500;}
+  .step .fdot{width:6px;height:6px;border-radius:999px;background:var(--flag);}
+  .step.on .fdot{background:var(--brass);}
+  main{flex:1;min-width:0;}
+
+  /* view head */
+  .vhead{margin-bottom:20px;}
+  .vhead .r{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .vhead .n{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:3px;color:var(--brass);}
+  .vhead h2{font-size:18px;font-weight:600;}
+  .vhead p{font-size:12.5px;color:var(--inkSoft);max-width:560px;}
+
+  /* generic */
+  .card{background:var(--card);border:1px solid var(--hair);border-radius:12px;}
+  .pill{font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;border:1px solid;white-space:nowrap;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  /* sources */
+  .src{display:flex;gap:14px;padding:16px;}
+  .src .ic{width:36px;height:36px;border-radius:9px;background:var(--hairSoft);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .src .nm{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .src .nm span{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .src .note{font-size:11.5px;color:var(--inkFaint);margin-top:2px;}
+  .src .det{font-size:12px;color:var(--inkSoft);margin-top:6px;}
+
+  /* sources — sənəd yükləmə */
+  .profwrap{margin-bottom:16px;}
+  .proflbl{font-size:11.5px;color:var(--inkFaint);margin-bottom:8px;}
+  .profbar{display:flex;gap:8px;flex-wrap:wrap;}
+  .ptog{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-family:inherit;cursor:pointer;
+    padding:7px 12px;border-radius:999px;border:1px solid var(--hair);background:var(--card);color:var(--inkSoft);transition:all .12s;}
+  .ptog .pdot{width:8px;height:8px;border-radius:999px;background:var(--inkFaint);flex-shrink:0;transition:background .12s;}
+  .ptog.on{border-color:var(--ink);background:var(--ink);color:#fff;}
+  .ptog.on .pdot{background:var(--brass);}
+  .docs{display:grid;gap:10px;}
+  .doc{display:flex;gap:14px;padding:14px 16px;align-items:center;}
+  .doc .ic{width:36px;height:36px;border-radius:9px;background:var(--hairSoft);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .dmain{flex:1;min-width:0;}
+  .dt{font-weight:500;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .condtag{font-size:10px;font-weight:500;padding:1px 7px;border-radius:999px;
+    background:var(--brassBg);color:var(--brass);border:1px solid var(--brass)33;}
+  .dwhy{font-size:11.5px;color:var(--inkFaint);margin-top:3px;}
+  .dfile{font-size:11.5px;color:var(--inkSoft);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .dfile .fn{font-weight:500;}
+  .dfile .fsz{color:var(--inkFaint);}
+  .dfile .fmeta{color:var(--inkFaint);}
+  .dact{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+  .dbtns{display:flex;align-items:center;gap:6px;}
+  .dbtn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:inherit;cursor:pointer;
+    padding:6px 12px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:opacity .12s;}
+  .dbtn:hover{opacity:.88;}
+  .dbtn.ghost{background:transparent;color:var(--inkSoft);border-color:var(--hair);}
+  .dbtn.del{background:transparent;border-color:var(--hair);padding:6px 8px;}
+  .dsec{font-size:12px;font-weight:600;color:var(--ink);margin:22px 0 10px;}
+  .dsec span{font-weight:400;color:var(--inkFaint);}
+  @media(max-width:640px){
+    .doc{flex-wrap:wrap;}
+    .dact{flex-direction:row;width:100%;justify-content:space-between;align-items:center;}
+  }
+
+  /* classify */
+  .cprog{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--inkSoft);margin-bottom:12px;}
+  .cprog b{color:var(--ink);}
+  .crow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--hairSoft);}
+  .crow:last-child{border-bottom:none;}
+  .chk{width:20px;height:20px;border-radius:6px;border:1px solid var(--inkFaint);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;background:transparent;}
+  .chk.on{background:var(--ok);border-color:var(--ok);}
+  .crow .cn{flex:1;min-width:0;}
+  .crow .cn .t{font-weight:500;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .crow .cn .norm{font-size:11px;color:var(--inkFaint);margin-top:2px;}
+  .normtag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--review);}
+  .amt{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--inkSoft);}
+
+  /* reconcile */
+  .stats{display:flex;gap:12px;margin-bottom:16px;}
+  .stat{flex:1;border:1px solid var(--hair);background:var(--card);border-radius:9px;padding:10px 14px;}
+  .stat .v{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;line-height:1;}
+  .stat .l{font-size:11px;color:var(--inkFaint);margin-top:6px;}
+  .bridges{display:grid;gap:14px;}
+  .bhead{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--hairSoft);}
+  .bhead .t{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;}
+  .bbody{padding:16px 20px;}
+  .brow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
+  .brow .lb{font-size:12.5px;}
+  .brow .vl{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap;}
+  .basis{font-size:11px;line-height:1.35;margin-top:2px;padding-left:12px;color:var(--inkFaint);}
+  .bline{margin-top:8px;}
+  .bsep{margin-top:12px;padding-top:12px;border-top:1px solid var(--hairSoft);}
+  .verdict{margin-top:12px;border-radius:9px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;}
+  .verdict .vt{font-size:12.5px;font-weight:500;}
+  .verdict .vn{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;}
+  .verdict p{font-size:12px;line-height:1.35;margin-top:4px;color:var(--inkSoft);}
+
+  /* declaration */
+  .drow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--hairSoft);}
+  .drow:last-child{border-bottom:none;}
+  .dcode{font-family:ui-monospace,monospace;font-size:11px;padding:2px 6px;border-radius:4px;background:var(--hairSoft);color:var(--inkSoft);}
+  .drow .dn{flex:1;min-width:0;}
+  .drow .dn .t{font-weight:500;font-size:13px;}
+  .drow .dn .s{font-size:11px;color:var(--inkFaint);margin-top:2px;display:flex;align-items:center;gap:4px;}
+  .dval{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13.5px;}
+  .noticebar{margin-top:12px;border-radius:9px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;background:var(--flagBg);}
+  .noticebar p{font-size:12px;line-height:1.35;color:var(--inkSoft);}
+
+  footer{margin-top:32px;padding-top:20px;border-top:1px solid var(--hair);
+    font-size:11px;line-height:1.6;color:var(--inkFaint);}
+
+  @media(max-width:760px){
+    .cols{flex-direction:column;}
+    nav.steps{width:100%;}
+    .steplist{flex-direction:row;overflow-x:auto;padding-bottom:4px;}
+    .step{white-space:nowrap;}
+  }
+  .hide-sm{}
+  @media(max-width:640px){.hide-sm{display:none!important;}}
+
+  /* ══ ictimai sayt ══ */
+  /* public header */
+  .pubhead{display:flex;align-items:center;justify-content:space-between;gap:20px;
+    padding:16px 0;border-bottom:1px solid var(--hair);margin-bottom:32px;}
+  .pubnav{display:flex;align-items:center;gap:4px;}
+  .pubnav a{padding:8px 12px;border-radius:8px;font-size:13px;color:var(--inkSoft);cursor:pointer;transition:all .12s;}
+  .pubnav a:hover{background:var(--hairSoft);color:var(--ink);}
+  .pubnav a.on{color:var(--ink);font-weight:500;}
+  .pubauth{display:flex;align-items:center;gap:8px;}
+  .btnp{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-family:inherit;cursor:pointer;
+    padding:9px 16px;border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:opacity .12s;}
+  .btnp:hover{opacity:.88;}
+  .btnp.brass{background:var(--brass);border-color:var(--brass);}
+  .btng{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-family:inherit;cursor:pointer;
+    padding:9px 16px;border-radius:9px;border:1px solid var(--hair);background:transparent;color:var(--ink);transition:all .12s;}
+  .btng:hover{border-color:var(--ink);}
+  .btnp.lg,.btng.lg{padding:12px 22px;font-size:14px;}
+
+  /* hero */
+  .hero{text-align:center;padding:40px 0 44px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--brass);
+    background:var(--brassBg);border:1px solid var(--brass)33;padding:6px 12px;border-radius:999px;margin-bottom:20px;}
+  .hero h1{font-size:38px;line-height:1.12;font-weight:700;letter-spacing:-.5px;max-width:720px;margin:0 auto;}
+  .hero h1 .hl{color:var(--brass);}
+  .hero .lead{font-size:15.5px;line-height:1.55;color:var(--inkSoft);max-width:560px;margin:18px auto 26px;}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .trust{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:30px;
+    font-size:12px;color:var(--inkFaint);}
+  .trust span{display:inline-flex;align-items:center;gap:6px;}
+
+  /* section */
+  .section{padding:38px 0;border-top:1px solid var(--hair);}
+  .section-h{text-align:center;margin-bottom:30px;}
+  .section-h .k{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:3px;color:var(--brass);}
+  .section-h h2{font-size:26px;font-weight:700;letter-spacing:-.3px;margin-top:8px;}
+  .section-h p{font-size:14px;color:var(--inkSoft);max-width:560px;margin:10px auto 0;}
+
+  /* features */
+  .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr;}}
+  .fcard{padding:20px;}
+  .fcard .fi{width:40px;height:40px;border-radius:10px;background:var(--ink);
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .fcard h3{font-size:15px;font-weight:600;margin-bottom:6px;}
+  .fcard p{font-size:12.5px;line-height:1.5;color:var(--inkSoft);}
+
+  /* how it works — steps */
+  .flow{display:grid;gap:14px;}
+  .flowstep{display:flex;gap:18px;padding:20px;align-items:flex-start;}
+  .flowstep .fnum{width:38px;height:38px;border-radius:999px;background:var(--brassBg);color:var(--brass);
+    font-family:ui-monospace,monospace;font-weight:600;font-size:15px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .flowstep .fbody h3{font-size:15px;font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:9px;}
+  .flowstep .fbody p{font-size:13px;line-height:1.5;color:var(--inkSoft);}
+
+  /* about */
+  .prose{max-width:680px;margin:0 auto;}
+  .prose p{font-size:14px;line-height:1.65;color:var(--inkSoft);margin-bottom:14px;}
+  .prose p b{color:var(--ink);}
+  .statline{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px;}
+  .statbox{flex:1;min-width:150px;text-align:center;padding:18px;}
+  .statbox .sv{font-family:ui-monospace,monospace;font-size:26px;font-weight:700;color:var(--ink);}
+  .statbox .sl{font-size:12px;color:var(--inkFaint);margin-top:5px;}
+
+  /* faq */
+  .faq{max-width:720px;margin:0 auto;display:grid;gap:10px;}
+  .faqitem{padding:16px 18px;}
+  .faqitem h4{font-size:13.5px;font-weight:600;margin-bottom:6px;}
+  .faqitem p{font-size:12.5px;line-height:1.5;color:var(--inkSoft);}
+
+  /* contact + auth forms */
+  .formwrap{max-width:460px;margin:0 auto;}
+  .authcard{padding:30px 28px;}
+  .authcard .ah{text-align:center;margin-bottom:22px;}
+  .authcard .ah h2{font-size:20px;font-weight:600;}
+  .authcard .ah p{font-size:12.5px;color:var(--inkSoft);margin-top:6px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;color:var(--inkSoft);margin-bottom:6px;}
+  .field input,.field textarea,.field select{width:100%;font-family:inherit;font-size:13.5px;color:var(--ink);
+    padding:10px 12px;border:1px solid var(--hair);border-radius:9px;background:var(--paper);transition:border-color .12s;}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--brass);}
+  .field textarea{resize:vertical;min-height:96px;}
+  .field2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:520px){.field2{grid-template-columns:1fr;}}
+  .formrow{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--inkSoft);margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .formrow label{display:flex;align-items:center;gap:7px;cursor:pointer;}
+  .formrow a{color:var(--brass);cursor:pointer;}
+  .authswap{text-align:center;font-size:12.5px;color:var(--inkSoft);margin-top:16px;}
+  .authswap a{color:var(--brass);cursor:pointer;font-weight:500;}
+  .fnote{font-size:11px;color:var(--inkFaint);text-align:center;margin-top:16px;line-height:1.5;}
+  .okmsg{background:var(--okBg);color:var(--ok);border:1px solid var(--ok)33;border-radius:9px;
+    padding:12px 14px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start;margin-bottom:16px;}
+
+  /* public footer */
+  .pubfooter{margin-top:44px;padding-top:26px;border-top:1px solid var(--hair);}
+  .pfftop{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:22px;}
+  .pfcol h5{font-size:12px;font-weight:600;margin-bottom:10px;}
+  .pfcol a{display:block;font-size:12.5px;color:var(--inkSoft);padding:3px 0;cursor:pointer;}
+  .pfcol a:hover{color:var(--ink);}
+  .pfbrand{max-width:280px;}
+  .pfbrand p{font-size:12px;color:var(--inkFaint);line-height:1.55;margin-top:10px;}
+  .pfbot{font-size:11px;line-height:1.6;color:var(--inkFaint);border-top:1px solid var(--hairSoft);padding-top:16px;}
+
+  @media(max-width:640px){
+    .hero h1{font-size:29px;}
+    .pubnav{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="header"></div>
+  <div id="app"></div>
+  <input type="file" id="filepick" style="display:none" accept=".pdf,.xlsx,.xls,.csv,.xml,.png,.jpg,.jpeg" />
+  <div id="footer"></div>
+</div>
+
+<script>
+/* ── icons ── */
+const I = {
+  scale:'<path d="M16 16l3-8 3 8c-2 1.5-4 1.5-6 0"/><path d="M2 16l3-8 3 8c-2 1.5-4 1.5-6 0"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  sheet:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8M8 9h2"/>',
+  bank:'<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/>',
+  receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8M8 11h8M8 15h5"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  building:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M9 6h6M9 10h6M9 14h6M9 18h6"/>',
+  shieldOk:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M9 12l2 2 4-4"/>',
+  shieldQ:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M9.5 9a2.5 2.5 0 1 1 3 2.4c-.6.2-1 .8-1 1.6"/><path d="M12 16h.01"/>',
+  warn:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+  ok:'<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m9 11 3 3L22 4"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+  chev:'<path d="m9 18 6-6-6-6"/>',
+  chevL:'<path d="m15 18-6-6 6-6"/>',
+  arrowR:'<path d="M5 12h14M12 5l7 7-7 7"/>',
+  layers:'<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  refresh:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/>',
+  pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>',
+};
+function svg(p,{size=16,color="currentColor",sw=2}={}){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+const CV = getComputedStyle(document.documentElement);
+const C = k => CV.getPropertyValue('--'+k).trim();
+// Deterministik format — dizayn dili: minliklər boşluqla ("1 245 000 ₼")
+function azn(n){
+  const r=Math.round(n), abs=Math.abs(r);
+  const g=String(abs).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return (r<0?'− ':'')+g+' ₼';
+}
+
+/* ── körpü mühərriki (src/domain/reconciliation/engine.ts ilə eyni məntiq) ── */
+function runBridge(b){
+  const adj=b.lines.reduce((s,l)=>s+l.value,0);
+  const expected=Math.round((b.start.value+adj)*100)/100;
+  const residual=Math.round((expected-b.actual.value)*100)/100;
+  return {...b,expected,residual,flagged:Math.abs(residual)>b.tol};
+}
+
+/* ── nümunə data (src/app-data/sample.ts) ── */
+const PERIODS=[{
+  id:'alfa-2025', company:'Alfa Ticarət MMC', voen:'1400123456',
+  periodLabel:'İllik · 2025', status:'BAXIŞ',
+  // Şirkət profili — hansı şərtli sənədlərin tələb olunduğunu müəyyən edir
+  profile:{vat:true, withholding:true, travel:true, fixedAssets:true, exemption:false},
+  // Tələb olunan sənədlər siyahısı. tier: core=həmişə · cond=şərtli (cond açarına bağlı) · suggest=tövsiyə
+  docs:[
+   // ── həmişə tələb olunan (core) ──
+   {id:'prevDecl',ic:'file',tier:'core',name:'Əvvəlki il MVB / GVB',why:'Zərər qalığı və açılış göstəriciləri',
+     pre:{name:'2024_MVB.pdf',meta:'Köçürülən zərər: 62 000 ₼'}},
+   {id:'ledger',ic:'sheet',tier:'core',name:'Baş kitab / 1C ixracı (Excel)',why:'Hesablar planı üzrə dövriyyələr',
+     pre:{name:'BashKitab_2025.xlsx',meta:'Sxem tanındı · 3 hesab əl ilə uyğunlaşdırılmalı',review:true}},
+   {id:'bank',ic:'bank',tier:'core',name:'Bank çıxarışları / konsolidə cədvəl',why:'Bütün hesablar üzrə hərəkət',
+     pre:{name:'Kapital_AZN_2025.pdf',meta:'412 əməliyyat oxundu'}},
+   {id:'eqaimeOut',ic:'receipt',tier:'core',name:'Göndərilən e-Qaimə cədvəli',why:'Vergi sistemi · satış qaimələri',
+     pre:{name:'Gonderilen_eQaime.xlsx',meta:'1 250 200 ₼ · 318 qaimə'}},
+   {id:'eqaimeIn',ic:'receipt',tier:'core',name:'Gələn e-Qaimə cədvəli',why:'Vergi sistemi · alış qaimələri'},
+   {id:'unified',ic:'users',tier:'core',name:'Vahid Bəyannamələr (DSMF)',why:'Muzdlu iş · əməkhaqqı bazası',
+     pre:{name:'Vahid_2025.pdf',meta:'Fond: 186 500 ₼'}},
+   // ── şərtli (cond) ──
+   {id:'vatDecl',ic:'file',tier:'cond',cond:'vat',name:'ƏDV bəyannamələri (rüblük)',why:'ƏDV qeydiyyatı mövcuddur',
+     pre:{name:'EDV_Q1-Q4_2025.pdf',meta:'Dövriyyə: 1 245 000 ₼'}},
+   {id:'vatSub',ic:'sheet',tier:'cond',cond:'vat',name:'ƏDV sub-hesabdan çıxarış',why:'ƏDV üzrə sub-hesab hərəkəti (əvəzləşmə yoxlaması)'},
+   {id:'withholding',ic:'file',tier:'cond',cond:'withholding',name:'ÖMV bəyannamələri',why:'İcarə, qeyri-rezidentə ödəniş, dividend və s.',
+     pre:{name:'OMV_2025.pdf',meta:'Ödəmə mənbəyində vergi hesabatı'}},
+   {id:'travel',ic:'receipt',tier:'cond',cond:'travel',name:'Ezamiyyə sənədləri',why:'Əmrlər + avans hesabatları (norma yoxlaması)'},
+   {id:'amort',ic:'building',tier:'cond',cond:'fixedAssets',name:'Amortizasiya cədvəli',why:'Əsas vəsaitlər · vergi amortizasiyası',
+     pre:{name:'Amortizasiya_2025.xlsx',meta:'2 obyektdə istismar tarixi çatışmır',review:true}},
+   {id:'exemption',ic:'shieldOk',tier:'cond',cond:'exemption',name:'Azadolma / güzəşt təsdiqi',why:'Fəaliyyət koduna uyğun — investisiya təşviq şəhadətnaməsi və s.'},
+   // ── tövsiyə olunan (Ares əlavəsi) ──
+   {id:'inventory',ic:'sheet',tier:'suggest',name:'İnventarizasiya aktı (il sonu)',why:'Mal-material qalıqlarının təsdiqi'},
+   {id:'reconAct',ic:'file',tier:'suggest',name:'Debitor / kreditor üzləşmə aktları',why:'Qarşılıqlı hesablaşmaların təsdiqi'},
+   {id:'loanSchedule',ic:'file',tier:'suggest',name:'Kredit müqavilələri + faiz cədvəli',why:'Faiz xərcinin çıxılma limiti (nazik kapital)'},
+   {id:'lossCert',ic:'file',tier:'suggest',name:'Əvvəlki illər zərər arayışı',why:'5 illik köçürmə hüququnun izlənməsi'},
+  ],
+  classify:[
+   {name:'Əməkhaqqı',amount:186500,s:'deduct'},
+   {name:'İcarə',amount:48000,s:'deduct'},
+   {name:'Kommunal',amount:12400,s:'deduct'},
+   {name:'Reklam',amount:21000,s:'deduct'},
+   {name:'Təmsilçilik',amount:9800,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır'},
+   {name:'Ezamiyyə',amount:6300,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır'},
+   {name:'Cərimə/faiz (büdcə)',amount:3100,s:'nondeduct'},
+   {name:'Amortizasiya',amount:27400,s:'adjust',norm:'Mühasibat ≠ vergi amortizasiyası — düzəliş'},
+  ],
+  bridges:[
+   {id:'vat',title:'ƏDV dövriyyəsi ↔ Mənfəət gəliri',
+    start:{label:'ƏDV bəyannaməsi dövriyyəsi',value:1245000},
+    lines:[{label:'(–) Cari ildə alınan, gələn ilə aid avanslar',value:-38000,basis:'Avans ƏDV obyektidir, gəlir hələ tanınmayıb'},
+           {label:'(–) Əsas vəsait satışında ƏDV bazası ilə gəlir fərqi',value:-4000,basis:'ƏDV tam dəyərdən; gəlir yalnız qalıq dəyərdən yuxarı fərqdən'},
+           {label:'(+) ƏDV-siz gəlirlər (faiz, məzənnə, cərimə)',value:0,basis:'Mənfəətə düşür, ƏDV dövriyyəsində yox'}],
+    expectedLabel:'Gözlənilən mənfəət gəliri',actual:{label:'Bəyannamədəki gəlir',value:1198000},tol:500,
+    note:'Bu məbləğ bilinən qanuni düzəlişlərlə izah olunmur — təqdimatdan əvvəl yoxlanmalıdır.'},
+   {id:'dsmf',title:'Əməkhaqqı fondu ↔ DSMF bazası',
+    start:{label:'Mühasibat əməkhaqqı fondu',value:186500},
+    lines:[{label:'(–) DSMF-yə cəlb olunmayan ödənişlər',value:-4000,basis:'Cəlb olunmayan ödəniş növləri (müavinətlər və s.)'},
+           {label:'(–) MHM & xidmət müqavilələri fərqi',value:-1300,basis:'Fərqli baza tətbiqi'}],
+    expectedLabel:'Gözlənilən DSMF bazası',actual:{label:'DSMF hesabatı bazası',value:181200},tol:500},
+   {id:'loss',title:'Zərərin köçürülməsi — kəsilməzlik',
+    start:{label:'Əvvəlki bəyannamədə köçürülən zərər',value:62000},
+    lines:[{label:'(–) Cari ildə istifadə edilən zərər',value:-55000,basis:'Cari il bəyannaməsində tətbiq olunan məbləğ'}],
+    expectedLabel:'Qalmalı olan zərər qalığı',actual:{label:'Faktiki göstərilən qalıq',value:0},tol:0,
+    note:'5 illik köçürmə hüququ (VM 121?) — istifadə olunmayan zərər itirilir və ya yanlış göstərilib.'},
+   {id:'eqaime',title:'e-Qaimələr ↔ ƏDV dövriyyəsi',
+    start:{label:'e-Qaimələr üzrə satış',value:1250200},
+    lines:[{label:'(–) Ləğv / korrektə edilmiş qaimələr',value:-5000,basis:'İl ərzində ləğv olunan qaimələr'}],
+    expectedLabel:'Gözlənilən ƏDV dövriyyəsi',actual:{label:'ƏDV bəyannaməsi dövriyyəsi',value:1245000},tol:500},
+  ],
+  declare:[
+   {code:'301',label:'Ümumi gəlir',value:1198000,src:'ƏDV körpüsü + e-Qaimə'},
+   {code:'302',label:'Gəlirdən çıxılan xərclər',value:862400,src:'Təsnifat (çıxılan)'},
+   {code:'303',label:'Vergi düzəlişləri (amort.)',value:4300,src:'Amortizasiya fərqi'},
+   {code:'304',label:'Köçürülən zərər (istifadə)',value:55000,src:'Zərər körpüsü'},
+   {code:'310',label:'Vergi tutulan mənfəət',value:276300,src:'Hesablanmış',strong:true},
+   {code:'320',label:'Mənfəət vergisi (20%)',value:55260,src:'Hesablanmış',strong:true},
+  ],
+  declareNotice:'2 açıq bayraq mövcuddur (mənfəət gəliri +5 000, zərər qalığı 7 000). Bəyannamə təqdim edilməzdən əvvəl bunlar həll olunmalıdır.',
+}];
+
+const CLS={deduct:{l:'Çıxılan',c:'ok',bg:'okBg'},nondeduct:{l:'Çıxılmayan',c:'flag',bg:'flagBg'},
+  limit:{l:'Məhdudlaşan',c:'review',bg:'reviewBg'},adjust:{l:'Vergi düzəlişi',c:'brass',bg:'brassBg'}};
+const STEPS=[
+ {id:'sources',n:'01',label:'Mənbələr'},
+ {id:'classify',n:'02',label:'Təsnifat'},
+ {id:'reconcile',n:'03',label:'Uyğunsuzluq'},
+ {id:'declare',n:'04',label:'Bəyannamə'},
+];
+
+/* ── state (kiçik router) ──
+   view: landing · how · about · contact · login · register · app · audit */
+const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null};
+const PUBLIC_VIEWS=['landing','how','about','contact'];
+const AUTH_VIEWS=['login','register'];
+function go(v){
+  if((v==='app'||v==='audit')&&!state.authed){state.view='login';window.scrollTo(0,0);render();return;}
+  state.view=v;window.scrollTo(0,0);render();
+}
+// Dövr açılanda profil və əvvəlcədən yüklənmiş faylları hazırla
+function openPeriod(id){
+  state.view='audit';state.periodId=id;state.step='sources';state.confirmed={};
+  const p=PERIODS.find(x=>x.id===id);
+  state.profile={...p.profile};
+  state.uploads={};
+  p.docs.forEach(d=>{ if(d.pre) state.uploads[d.id]={name:d.pre.name,size:null,meta:d.pre.meta,review:!!d.pre.review}; });
+}
+const period=()=>PERIODS.find(p=>p.id===state.periodId);
+const results=()=>period().bridges.map(runBridge);
+const flaggedCount=()=>results().filter(r=>r.flagged).length;
+
+/* ── helpers ── */
+function pill(text,c,bg){return `<span class="pill" style="color:${C(c)};background:${C(bg)};border-color:${C(c)}33">${text}</span>`;}
+function vhead(n,t,d){return `<div class="vhead"><div class="r"><span class="n">${n}</span><h2>${t}</h2></div><p>${d}</p></div>`;}
+function brow(label,value,{strong,muted,accent}={}){
+  const col=accent?C('brass'):muted?C('inkSoft'):C('ink');
+  const w=(strong||accent)?600:500;
+  return `<div class="brow"><span class="lb" style="color:${muted?C('inkSoft'):C('ink')};${(strong||accent)?'font-weight:500':''}">${label}</span>
+    <span class="vl" style="color:${col};font-weight:${w}">${azn(value)}</span></div>`;
+}
+
+/* ── dashboard ── */
+function viewHome(){
+  const cards=PERIODS.map(p=>{
+    const f=p.bridges.map(runBridge).filter(r=>r.flagged).length;
+    const c=f?C('flag'):C('ok'), bg=f?C('flagBg'):C('okBg');
+    return `<div class="card period" data-open="${p.id}">
+      <div class="pic">${svg(I.building,{size:18,color:C('brass')})}</div>
+      <div class="co"><div class="nm">${p.company}</div>
+        <div class="meta"><span>VÖEN ${p.voen}</span><span>·</span><span>${p.status}</span></div></div>
+      <span class="yr">${p.periodLabel}</span>
+      <span class="statuschip" style="border-color:${c}44;background:${bg};color:${c}">
+        ${f?svg(I.warn,{size:14,color:c}):svg(I.ok,{size:14,color:c})}<span>${f?f+' açıq bayraq':'Hazır'}</span></span>
+    </div>`;
+  }).join('');
+  return `<div class="dash-head"><div><h1>Dövrlər</h1>
+    <p>Hər bəyannamə konkret şirkət və vergi dövrünə bağlıdır. Davam etmək üçün seçin.</p></div></div>
+    <div class="periods">${cards}</div>`;
+}
+
+/* ── audit views ── */
+const PROFILE_LABELS={vat:'ƏDV qeydiyyatı',withholding:'İcarə / qeyri-rezident ödəniş',travel:'Ezamiyyə xərci',fixedAssets:'Əsas vəsait',exemption:'Azadolma / güzəşt'};
+const isRequired=d=>d.tier==='core'||(d.tier==='cond'&&state.profile[d.cond]);
+const isShown=d=>d.tier==='suggest'||isRequired(d);
+const requiredDocs=()=>period().docs.filter(isRequired);
+const missingReq=()=>requiredDocs().filter(d=>!state.uploads[d.id]).length;
+
+function fileSize(b){ if(b==null)return ''; if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(0)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+
+function docRow(d){
+  const up=state.uploads[d.id];
+  const required=isRequired(d);
+  let sc,sbg,slabel,sicon;
+  if(up){ if(up.review){sc='review';sbg='reviewBg';slabel='Baxılmalı';sicon=I.shieldQ;}
+          else {sc='ok';sbg='okBg';slabel='Əlavə edildi';sicon=I.shieldOk;} }
+  else if(required){ sc='flag';sbg='flagBg';slabel='Çatışmır';sicon=I.warn; }
+  else { sc='inkFaint';sbg='hairSoft';slabel='Tövsiyə olunur';sicon=I.file; }
+  const condtag=d.tier==='cond'?`<span class="condtag">${PROFILE_LABELS[d.cond]}</span>`:'';
+  const fileLine=up
+    ? `<div class="dfile">${svg(I.file,{size:12,color:C('inkSoft')})}<span class="fn">${up.name}</span>${up.size!=null?`<span class="fsz">${fileSize(up.size)}</span>`:''}${up.meta?`<span class="fmeta">· ${up.meta}</span>`:''}</div>`
+    : '';
+  const actions=up
+    ? `<button class="dbtn ghost" data-upload="${d.id}">Dəyişdir</button><button class="dbtn del" data-remove="${d.id}" title="Sil">${svg(I.warn,{size:13,color:C('flag')})}</button>`
+    : `<button class="dbtn" data-upload="${d.id}">${svg(I.file,{size:13,color:'#fff'})} Fayl seç</button>`;
+  return `<div class="card doc">
+    <div class="ic">${svg(I[d.ic],{color:C('ink'),size:17})}</div>
+    <div class="dmain">
+      <div class="dt"><span>${d.name}</span>${condtag}</div>
+      <div class="dwhy">${d.why}</div>
+      ${fileLine}
+    </div>
+    <div class="dact">
+      <span class="pill" style="color:${C(sc)};background:${C(sbg)};border-color:${C(sc)}33">${slabel}</span>
+      <div class="dbtns">${actions}</div>
+    </div>
+  </div>`;
+}
+
+function viewSources(){
+  const docs=period().docs;
+  const req=requiredDocs(); const have=req.filter(d=>state.uploads[d.id]).length;
+  const reqList=docs.filter(d=>isRequired(d)).map(docRow).join('');
+  const sugList=docs.filter(d=>d.tier==='suggest').map(docRow).join('');
+  const toggles=Object.keys(PROFILE_LABELS).map(k=>{
+    const on=state.profile[k];
+    return `<button class="ptog ${on?'on':''}" data-prof="${k}">
+      <span class="pdot"></span>${PROFILE_LABELS[k]}</button>`;
+  }).join('');
+  const miss=missingReq();
+  const banner=miss>0
+    ? `<div class="noticebar" style="background:${C('flagBg')};margin-top:0;margin-bottom:16px">${svg(I.warn,{size:15,color:C('flag')})}
+        <p><b>${miss} tələb olunan sənəd çatışmır.</b> Analiz və bəyannamə tərtibi üçün aşağıdakı boş sətirlərə faylları əlavə edin.</p></div>`
+    : `<div class="noticebar" style="background:${C('okBg')};margin-top:0;margin-bottom:16px">${svg(I.ok,{size:15,color:C('ok')})}
+        <p>Bütün tələb olunan sənədlər əlavə edilib. Analizə keçmək olar.</p></div>`;
+  return vhead('01','Mənbələr — sənəd yükləmə','Bəyannamə şirkət profilinə uyğun tələb olunan sənədlərdən qurulur. Hər faylı əlavə edin — sistem oxuyur, etibarlılıq səviyyəsi ilə işarələyir və analizə hazırlayır.')
+    +`<div class="profwrap">
+        <div class="proflbl">Şirkət profili — hansı sənədlərin tələb olunduğunu müəyyən edir:</div>
+        <div class="profbar">${toggles}</div>
+      </div>`
+    +banner
+    +`<div class="cprog"><b class="mono">${have}</b> / ${req.length} tələb olunan sənəd əlavə edildi</div>
+      <div class="docs">${reqList}</div>
+      <div class="dsec">Tövsiyə olunan əlavə sənədlər <span>— məcburi deyil, amma analizin dəqiqliyini artırır</span></div>
+      <div class="docs">${sugList}</div>`;
+}
+function viewClassify(){
+  const list=period().classify;
+  const done=Object.values(state.confirmed).filter(Boolean).length;
+  const rows=list.map((r,i)=>{
+    const cl=CLS[r.s];const on=state.confirmed[i];
+    return `<div class="crow">
+      <button class="chk ${on?'on':''}" data-toggle="${i}">${on?svg(I.check,{size:13,color:'#fff'}):''}</button>
+      <div class="cn">
+        <div class="t">${r.name}${r.norm?`<span class="normtag">${svg(I.warn,{size:11,color:C('review')})} norma yoxlaması</span>`:''}</div>
+        ${r.norm?`<div class="norm">${r.norm}</div>`:''}
+      </div>
+      <span class="amt">${azn(r.amount)}</span>
+      ${pill(cl.l,cl.c,cl.bg)}
+    </div>`;
+  }).join('');
+  return vhead('02','Təsnifat — təklif → təsdiq','Sistem hər sətir üçün təsnifat təklif edir. Yekun qərar səndədir; norma ilə məhdudlaşan xərclər ayrıca işarələnir.')
+    +`<div class="cprog"><b class="mono">${done}</b> / ${list.length} sətir təsdiqləndi</div>
+      <div class="card">${rows}</div>
+      <p style="font-size:11.5px;color:${C('inkFaint')};margin-top:12px">Heç bir sətir avtomatik yekunlaşmır — təsdiq düyməsi ilə sən qərar verirsən.</p>`;
+}
+function bridge(b){
+  const flagged=b.flagged;
+  const sc=flagged?C('flag'):C('ok'), sbg=flagged?C('flagBg'):C('okBg');
+  const lines=b.lines.map(l=>`<div class="bline">${brow(l.label,l.value,{muted:true})}<div class="basis">${l.basis}</div></div>`).join('');
+  const verdictMsg=flagged?(b.note||'Bu məbləğ bilinən qanuni düzəlişlərlə izah olunmur — təqdimatdan əvvəl yoxlanmalıdır.'):'';
+  return `<div class="card">
+    <div class="bhead">
+      <div class="t">${flagged?svg(I.warn,{size:17,color:C('flag')}):svg(I.ok,{size:17,color:C('ok')})}${b.title}</div>
+      ${pill(flagged?`İzahsız ${azn(Math.abs(b.residual))}`:'Uzlaşdı',flagged?'flag':'ok',flagged?'flagBg':'okBg')}
+    </div>
+    <div class="bbody">
+      ${brow(b.start.label,b.start.value,{strong:true})}
+      ${lines}
+      <div class="bsep">${brow(b.expectedLabel,b.expected,{accent:true})}</div>
+      <div style="margin-top:6px">${brow(b.actual.label,b.actual.value)}</div>
+      <div class="verdict" style="background:${sbg}">
+        <div style="margin-top:1px">${flagged?svg(I.warn,{size:16,color:C('flag')}):svg(I.check,{size:16,color:C('ok')})}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <span class="vt" style="color:${sc}">${flagged?'İzah olunmayan qalıq':'Tam izah olundu'}</span>
+            <span class="vn" style="color:${sc}">${azn(Math.abs(b.residual))}</span>
+          </div>
+          ${verdictMsg?`<p>${verdictMsg}</p>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function viewReconcile(){
+  const rs=results();const f=rs.filter(r=>r.flagged).length;
+  const stats=`<div class="stats">
+    <div class="stat"><div class="v" style="color:${C('ink')}">${rs.length}</div><div class="l">körpü</div></div>
+    <div class="stat"><div class="v" style="color:${C('flag')}">${f}</div><div class="l">bayraq</div></div>
+    <div class="stat"><div class="v" style="color:${C('ok')}">${rs.length-f}</div><div class="l">uzlaşdı</div></div>
+  </div>`;
+  return vhead('03','Uyğunsuzluq auditi','Hər körpü bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayır.')
+    +stats+`<div class="bridges">${rs.map(bridge).join('')}</div>`;
+}
+function viewDeclare(){
+  const rows=period().declare.map(c=>`
+    <div class="drow" style="${c.strong?`background:${C('brassBg')}`:''}">
+      <span class="dcode" style="${c.strong?'background:#fff':''}">${c.code}</span>
+      <div class="dn"><div class="t">${c.label}</div>
+        <div class="s">${svg(I.scan,{size:11,color:C('inkFaint')})} ${c.src}</div></div>
+      <span class="dval" style="color:${c.strong?C('brass'):C('ink')};font-weight:${c.strong?700:500}">${azn(c.value)}</span>
+    </div>`).join('');
+  return vhead('04','Bəyannamə xanaları','Uzlaşdırılmış rəqəmlər bəyannamə xanalarına yerləşir. Hər xana mənbəyə qədər izlənə bilər.')
+    +`<div class="card">${rows}</div>
+      <div class="noticebar">${svg(I.warn,{size:15,color:C('flag')})}<p>${period().declareNotice}</p></div>`;
+}
+const VIEWS={sources:viewSources,classify:viewClassify,reconcile:viewReconcile,declare:viewDeclare};
+
+function viewAudit(){
+  const f=flaggedCount();
+  const md=missingReq();
+  const nav=STEPS.map(s=>{
+    const on=state.step===s.id;
+    const sf=(s.id==='reconcile'&&f>0)||(s.id==='sources'&&md>0);
+    return `<button class="step ${on?'on':''}" data-step="${s.id}">
+      <span class="num">${s.n}</span><span class="lbl">${s.label}</span>
+      ${sf?'<span class="fdot"></span>':''}${on?svg(I.chev,{size:14,color:C('brass')}):''}</button>`;
+  }).join('');
+  return `<div class="cols">
+    <nav class="steps">
+      <div class="backrow"><button class="backbtn" data-go="app">${svg(I.chevL,{size:14})} Dövrlər</button></div>
+      <div class="steplist">${nav}</div>
+    </nav>
+    <main>${VIEWS[state.step]()}</main>
+  </div>`;
+}
+
+/* ══ ictimai sayt görünüşləri ══ */
+function brandBlock(sub,target){
+  return `<div class="brandrow" data-go="${target}">
+    <div class="logo">${svg(I.scale,{size:18,color:'#A67C2E'})}</div>
+    <div><div class="brand-t">Taxclara<span class="dot">.</span>az</div>
+    <div class="brand-s">${sub}</div></div>
+  </div>`;
+}
+const NAV=[['landing','Əsas səhifə'],['how','İşləmə mexanizmi'],['about','Haqqında'],['contact','Əlaqə']];
+
+function renderHeader(){
+  const inApp = state.view==='app'||state.view==='audit';
+  if(inApp){
+    const sub = state.view==='audit'?`${period().company} · ${period().periodLabel}`:'İş paneli · dövrlər';
+    let chip='';
+    if(state.view==='audit'){
+      const f=flaggedCount();const c=f?C('flag'):C('ok'),bg=f?C('flagBg'):C('okBg');
+      chip=`<div class="statuschip hide-sm" style="border-color:${c}44;background:${bg};color:${c}">${f?svg(I.warn,{size:14,color:c}):svg(I.ok,{size:14,color:c})}<span>${f?f+' açıq bayraq':'Hazır'}</span></div>`;
+    }
+    return `<header class="top">${brandBlock(sub,'app')}
+      <div style="display:flex;align-items:center;gap:14px">${chip}
+        <button class="btng" data-logout>Çıxış</button></div></header>`;
+  }
+  const nav=NAV.map(([v,l])=>`<a data-go="${v}" class="${state.view===v?'on':''}">${l}</a>`).join('');
+  const auth=state.authed
+    ? `<button class="btng" data-go="app">Panel</button><button class="btnp" data-logout>Çıxış</button>`
+    : `<button class="btng" data-go="login">Giriş</button><button class="btnp" data-go="register">Qeydiyyat</button>`;
+  return `<header class="pubhead">${brandBlock('Bəyannamə hazırlama · uyğunsuzluq auditi','landing')}
+    <nav class="pubnav">${nav}</nav>
+    <div class="pubauth">${auth}</div></header>`;
+}
+
+function renderFooter(){
+  if(state.view==='app'||state.view==='audit'){
+    return `<footer>İlkin prototip · nümunə məlumatları ilə. Normalar (təmsilçilik, ezamiyyə) və maddə nömrələri istifadədən əvvəl cari qanunvericiliklə (e-qanun.az) təsdiqlənməlidir. Yekun peşəkar mülahizə mühasibə aiddir.</footer>`;
+  }
+  return `<div class="pubfooter">
+    <div class="pfftop">
+      <div class="pfcol pfbrand">${brandBlock('Bəyannamə · uyğunsuzluq auditi','landing')}
+        <p>Azərbaycan müəssisələri üçün vergi bəyannaməsi hazırlama və uyğunsuzluq auditi platforması.</p></div>
+      <div class="pfcol"><h5>Platforma</h5><a data-go="how">İşləmə mexanizmi</a><a data-go="about">Haqqında</a><a data-go="contact">Əlaqə</a></div>
+      <div class="pfcol"><h5>Hesab</h5><a data-go="login">Giriş</a><a data-go="register">Qeydiyyat</a></div>
+      <div class="pfcol"><h5>Hüquqi</h5><a data-go="about">Məxfilik siyasəti</a><a data-go="about">İstifadə şərtləri</a></div>
+    </div>
+    <div class="pfbot">© 2025 Taxclara.az · İlkin prototip. Vergi məhsuludur — hər dərəcə, norma və maddə cari qanunvericiliklə (e-qanun.az) təsdiqlənməlidir. Yekun peşəkar mülahizə mühasibə aiddir.</div>
+  </div>`;
+}
+
+const FEATURES=[
+  {i:'layers',t:'Uyğunsuzluq auditi',d:'İki rəqəmi çılpaq müqayisə etmirik. Bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayırıq — saxta xəbərdarlıqlar olmadan.'},
+  {i:'check',t:'Təsnifat: təklif → təsdiq',d:'Sistem hər xərcin çıxılan/çıxılmayan/məhdudlaşan olduğunu təklif edir. Yekun qərar və məsuliyyət həmişə mühasibdə qalır.'},
+  {i:'refresh',t:'Versiyalı vergi qaydaları',d:'2025 bəyannaməsi 2025 qaydaları ilə hesablanır. Qayda yenilənəndə köhnə bəyannamələr dəyişmir — hər il öz mənbəyi ilə qorunur.'},
+  {i:'sheet',t:'Sənəd yükləmə + tələb siyahısı',d:'Şirkət profilinə görə hansı sənədlərin tələb olunduğunu göstərir. Çatışmayan sənəd açıq bayraqlanır — heç nə unudulmur.'},
+  {i:'users',t:'Dörd göz təsdiq axını',d:'Hazırlanır → Baxış → Təsdiq → Təqdim üçün hazır. Kiçik mühasib hazırlayır, senior təsdiqləyir.'},
+  {i:'scan',t:'Tam audit izi',d:'Hər təsnifat təsdiqi, hər körpü imzası, hər bəyannamə formalaşdırması məsul istifadəçi və zaman ilə loglanır.'},
+];
+const FLOW=[
+  {t:'Sənədləri yüklə',d:'1C ixracı, bank çıxarışları, e-Qaimə cədvəlləri, ƏDV/ÖMV/Vahid bəyannamələr və digər sənədləri əlavə edin. Sistem oxuyur, sxemi tanıyır və etibarlılıq səviyyəsi ilə işarələyir.'},
+  {t:'Təsnifatı təsdiqlə',d:'Xərclər üzrə təsnifat təklifini nəzərdən keçirin. Norma ilə məhdudlaşan xərclər (təmsilçilik, ezamiyyə) ayrıca bayraqlanır.'},
+  {t:'Uyğunsuzluqları həll et',d:'Körpülər (ƏDV↔mənfəət, əməkhaqqı↔DSMF, e-Qaimə↔ƏDV, zərər köçürməsi) izahsız qalığı aşkarlayır. Təqdimatdan əvvəl hər bayraq həll olunur.'},
+  {t:'Bəyannaməni formalaşdır',d:'Uzlaşdırılmış rəqəmlər bəyannamə xanalarına yerləşir. Hər xana mənbəyə qədər izlənə bilər; hazır bəyannamə ixrac olunur.'},
+];
+
+function viewLanding(){
+  const feats=FEATURES.map(f=>`<div class="card fcard">
+    <div class="fi">${svg(I[f.i],{size:19,color:'#A67C2E'})}</div>
+    <h3>${f.t}</h3><p>${f.d}</p></div>`).join('');
+  const flow=FLOW.map((s,i)=>`<div class="card flowstep">
+    <div class="fnum">${i+1}</div>
+    <div class="fbody"><h3>${s.t}</h3><p>${s.d}</p></div></div>`).join('');
+  return `<section class="hero">
+      <div class="eyebrow">${svg(I.spark,{size:13,color:'#A67C2E'})} Mənfəət bəyannaməsi · uyğunsuzluq auditi</div>
+      <h1>Bəyannaməni <span class="hl">uyğunsuzluqsuz</span> təqdim edin</h1>
+      <p class="lead">Mühasibat və vergi datanızı yükləyin — Taxclara sənədləri analiz edir, Vergi Məcəlləsinə uyğun düzəlişləri tətbiq edir, mənfəət vergisini hesablayır və <b>təqdimatdan əvvəl uyğunsuzluqları aşkarlayır.</b></p>
+      <div class="cta">
+        <button class="btnp brass lg" data-go="register">Pulsuz başla ${svg(I.arrowR,{size:16,color:'#fff'})}</button>
+        <button class="btng lg" data-go="how">İşləmə mexanizmi</button>
+      </div>
+      <div class="trust">
+        <span>${svg(I.shieldOk,{size:15,color:C('ok')})} Vergi Məcəlləsinə uyğun</span>
+        <span>${svg(I.clock,{size:15,color:C('brass')})} Dövr-mərkəzli</span>
+        <span>${svg(I.scan,{size:15,color:C('inkSoft')})} Tam audit izi</span>
+        <span>${svg(I.users,{size:15,color:C('inkSoft')})} Dörd göz təsdiqi</span>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-h"><div class="k">NİYƏ TAXCLARA</div><h2>Bəyannamə doldurmaqdan artıq</h2>
+        <p>Əsas dəyər uyğunsuzluq auditidir — sistem sadəcə forma doldurmur, riski təqdimatdan əvvəl aşkarlayır.</p></div>
+      <div class="fgrid">${feats}</div>
+    </section>
+    <section class="section">
+      <div class="section-h"><div class="k">İŞLƏMƏ MEXANİZMİ</div><h2>Dörd addımda bəyannamə</h2></div>
+      <div class="flow">${flow}</div>
+      <div class="cta" style="margin-top:26px"><button class="btnp lg" data-go="register">İndi başla ${svg(I.arrowR,{size:16,color:'#fff'})}</button></div>
+    </section>`;
+}
+
+function viewHow(){
+  const flow=FLOW.map((s,i)=>`<div class="card flowstep">
+    <div class="fnum">${i+1}</div>
+    <div class="fbody"><h3>${s.t}</h3><p>${s.d}</p></div></div>`).join('');
+  return `<section class="section" style="border-top:none;padding-top:20px">
+      <div class="section-h"><div class="k">İŞLƏMƏ MEXANİZMİ</div><h2>Sənəddən bəyannaməyə</h2>
+        <p>Bütün axın bir prinsipə xidmət edir: uyğunsuzluğu təqdimatdan əvvəl aşkarlamaq.</p></div>
+      <div class="flow">${flow}</div>
+    </section>
+    <section class="section">
+      <div class="section-h"><div class="k">FƏRQ</div><h2>İzahlı qalıq nədir?</h2></div>
+      <div class="prose">
+        <p>Ənənəvi yoxlama iki rəqəmi çılpaq müqayisə edir və hər fərqi problem kimi göstərir — nəticədə yüzlərlə saxta xəbərdarlıq.</p>
+        <p>Taxclara isə <b>bir rəqəmdən başlayır</b> (məsələn ƏDV dövriyyəsi), <b>bilinən qanuni düzəlişləri tətbiq edir</b> (avanslar, əsas vəsait satışı, ƏDV-siz gəlirlər), <b>gözlənilən dəyərə çatır</b> və yalnız <b>izah olunmayan qalığı</b> bayraqlayır. Beləliklə diqqətiniz yalnız həqiqi riskə yönəlir.</p>
+      </div>
+      <div class="cta" style="margin-top:28px"><button class="btnp lg" data-go="register">Hesab yarat ${svg(I.arrowR,{size:16,color:'#fff'})}</button></div>
+    </section>`;
+}
+
+function viewAbout(){
+  return `<section class="section" style="border-top:none;padding-top:20px">
+      <div class="section-h"><div class="k">HAQQINDA</div><h2>Vergi mütəxəssisləri üçün qurulub</h2></div>
+      <div class="prose">
+        <p>Taxclara.az — Azərbaycan müəssisələri üçün <b>vergi bəyannaməsi hazırlama və uyğunsuzluq auditi</b> platformasıdır. İstifadəçilərimiz vergi mütəxəssisləri, mühasiblər və mühasibat firmalarıdır.</p>
+        <p>Məhsul dörd prinsip üzərində qurulub: <b>dövr-mərkəzli</b> (hər data konkret şirkət və vergi dövrünə bağlıdır), <b>kirayəçi izolyasiyası</b> (hər firma yalnız öz müştərilərini görür), <b>versiyalı qaydalar</b> (hər il öz qanunvericiliyi ilə) və <b>tam audit izi</b> (hər əməliyyat məsul şəxs və zamanla loglanır).</p>
+        <p>Bu, vergi məhsuludur. Ona görə hər dərəcə, norma və maddə nömrəsi cari qanunvericiliklə (e-qanun.az) təsdiqlənir; yekun peşəkar mülahizə həmişə mühasibə aiddir.</p>
+      </div>
+      <div class="statline">
+        <div class="card statbox"><div class="sv">4</div><div class="sl">əsas uyğunsuzluq körpüsü</div></div>
+        <div class="card statbox"><div class="sv">5+</div><div class="sl">bəyannamə növü (Faza 2)</div></div>
+        <div class="card statbox"><div class="sv">100%</div><div class="sl">əməliyyat audit izi</div></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-h"><div class="k">TEZ-TEZ SORUŞULAN</div><h2>Suallar</h2></div>
+      <div class="faq">
+        <div class="card faqitem"><h4>Datam təhlükəsizdirmi?</h4><p>Hər firma yalnız öz müştərilərinin datasını görür — izolyasiya serializer səviyyəsində təmin olunur. Təqdim olunmuş bəyannamənin girişi dondurulur (snapshot).</p></div>
+        <div class="card faqitem"><h4>Rəqəmlərin doğruluğuna zəmanət varmı?</h4><p>Sistem hesablayır və təklif edir, amma yekun məsuliyyət mühasibdədir. Təsdiqlənməmiş qayda dəyərləri açıq şəkildə işarələnir.</p></div>
+        <div class="card faqitem"><h4>Hansı faylları qəbul edir?</h4><p>1C/Excel ixracları, bank çıxarışları (PDF/Excel), vergi sistemindən e-Qaimə cədvəlləri, ƏDV/ÖMV/Vahid bəyannamələr və digər təsdiqedici sənədlər.</p></div>
+      </div>
+      <div class="cta" style="margin-top:28px"><button class="btnp lg" data-go="contact">Bizimlə əlaqə ${svg(I.arrowR,{size:16,color:'#fff'})}</button></div>
+    </section>`;
+}
+
+function viewContact(){
+  const sent=state.contactSent;
+  return `<section class="section" style="border-top:none;padding-top:20px">
+      <div class="section-h"><div class="k">ƏLAQƏ</div><h2>Bizimlə əlaqə saxlayın</h2>
+        <p>Sual, demo tələbi və ya əməkdaşlıq üçün yazın — qısa müddətdə cavablandırırıq.</p></div>
+      <div class="formwrap">
+        <div class="card authcard">
+          ${sent?`<div class="okmsg">${svg(I.check,{size:16,color:C('ok')})}<div>Mesajınız qəbul edildi (nümayiş). Real göndərmə backend qoşulduqda aktivləşəcək.</div></div>`:''}
+          <div class="field"><label>Ad, soyad</label><input type="text" placeholder="Adınız" /></div>
+          <div class="field"><label>E-poçt</label><input type="email" placeholder="ad@sirket.az" /></div>
+          <div class="field"><label>Mesaj</label><textarea placeholder="Necə kömək edə bilərik?"></textarea></div>
+          <button class="btnp" style="width:100%;justify-content:center" data-contact>Göndər</button>
+        </div>
+        <div class="trust" style="margin-top:22px">
+          <span>${svg(I.mail,{size:15,color:C('brass')})} info@taxclara.az</span>
+          <span>${svg(I.phone,{size:15,color:C('brass')})} +994 12 000 00 00</span>
+          <span>${svg(I.pin,{size:15,color:C('brass')})} Bakı, Azərbaycan</span>
+        </div>
+        <p class="fnote">Qeyd: bu forma nümayiş məqsədlidir — real göndərmə və məlumat saxlama backend Faza 1-də qurulacaq.</p>
+      </div>
+    </section>`;
+}
+
+function viewLogin(){
+  return `<section class="section" style="border-top:none;padding-top:24px">
+    <div class="formwrap"><div class="card authcard">
+      <div class="ah"><h2>Hesaba giriş</h2><p>Taxclara iş panelinə daxil olun</p></div>
+      <div class="field"><label>E-poçt</label><input type="email" placeholder="ad@sirket.az" autocomplete="username" /></div>
+      <div class="field"><label>Parol</label><input type="password" placeholder="••••••••" autocomplete="current-password" /></div>
+      <div class="formrow">
+        <label><input type="checkbox" /> Məni xatırla</label>
+        <a data-go="contact">Parolu unutmusan?</a>
+      </div>
+      <button class="btnp" style="width:100%;justify-content:center" data-auth="login">${svg(I.lock,{size:15,color:'#fff'})} Giriş</button>
+      <div class="authswap">Hesabın yoxdur? <a data-go="register">Qeydiyyatdan keç</a></div>
+      <p class="fnote">Nümayiş rejimi — real autentifikasiya backend Faza 1-də qurulacaq. Parol daxil etməyin, düymə birbaşa panelə keçir.</p>
+    </div></div>
+  </section>`;
+}
+
+function viewRegister(){
+  return `<section class="section" style="border-top:none;padding-top:24px">
+    <div class="formwrap"><div class="card authcard">
+      <div class="ah"><h2>Qeydiyyat</h2><p>Mühasib / vergi mütəxəssisi hesabı yaradın</p></div>
+      <div class="field2">
+        <div class="field"><label>Ad, soyad</label><input type="text" placeholder="Adınız" /></div>
+        <div class="field"><label>Firma adı</label><input type="text" placeholder="MMC / firma" /></div>
+      </div>
+      <div class="field2">
+        <div class="field"><label>VÖEN</label><input type="text" placeholder="10 rəqəm" inputmode="numeric" /></div>
+        <div class="field"><label>Telefon</label><input type="tel" placeholder="+994 ..." /></div>
+      </div>
+      <div class="field"><label>E-poçt</label><input type="email" placeholder="ad@sirket.az" /></div>
+      <div class="field"><label>Parol</label><input type="password" placeholder="ən azı 8 simvol" /></div>
+      <div class="formrow"><label><input type="checkbox" /> <span>İstifadə şərtləri və məxfilik siyasəti ilə razıyam</span></label></div>
+      <button class="btnp brass" style="width:100%;justify-content:center" data-auth="register">Hesab yarat</button>
+      <div class="authswap">Artıq hesabın var? <a data-go="login">Giriş et</a></div>
+      <p class="fnote">Nümayiş rejimi — real qeydiyyat və məlumat saxlama backend Faza 1-də qurulacaq. Şəxsi məlumat daxil etməyin.</p>
+    </div></div>
+  </section>`;
+}
+
+/* ── render ── */
+function render(){
+  document.getElementById('header').innerHTML=renderHeader();
+  let html;
+  switch(state.view){
+    case 'audit': html=viewAudit(); break;
+    case 'app': html=viewHome(); break;
+    case 'how': html=viewHow(); break;
+    case 'about': html=viewAbout(); break;
+    case 'contact': html=viewContact(); break;
+    case 'login': html=viewLogin(); break;
+    case 'register': html=viewRegister(); break;
+    default: html=viewLanding();
+  }
+  document.getElementById('app').innerHTML=html;
+  document.getElementById('footer').innerHTML=renderFooter();
+}
+
+/* ── events ── */
+document.addEventListener('click',e=>{
+  const au=e.target.closest('[data-auth]');
+  if(au){state.authed=true;go('app');return;}
+  const lo=e.target.closest('[data-logout]');
+  if(lo){state.authed=false;go('landing');return;}
+  const open=e.target.closest('[data-open]');
+  if(open){openPeriod(open.dataset.open);render();return;}
+  const go1=e.target.closest('[data-go]');
+  if(go1){go(go1.dataset.go);return;}
+  const ct=e.target.closest('[data-contact]');
+  if(ct){state.contactSent=true;render();return;}
+  const st=e.target.closest('[data-step]');
+  if(st){state.step=st.dataset.step;render();return;}
+  const tg=e.target.closest('[data-toggle]');
+  if(tg){const i=tg.dataset.toggle;state.confirmed[i]=!state.confirmed[i];render();return;}
+  const pr=e.target.closest('[data-prof]');
+  if(pr){const k=pr.dataset.prof;state.profile[k]=!state.profile[k];render();return;}
+  const rm=e.target.closest('[data-remove]');
+  if(rm){delete state.uploads[rm.dataset.remove];render();return;}
+  const up=e.target.closest('[data-upload]');
+  if(up){state.pendingDoc=up.dataset.upload;const fi=document.getElementById('filepick');fi.value='';fi.click();return;}
+});
+document.getElementById('filepick').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0];
+  if(f&&state.pendingDoc){
+    state.uploads[state.pendingDoc]={name:f.name,size:f.size,meta:'Əlavə edildi · analiz gözləyir',review:false};
+    state.pendingDoc=null;render();
+  }
+});
+render();
+</script>
+</body>
+</html>
