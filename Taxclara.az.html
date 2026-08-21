@@ -199,6 +199,12 @@
   .lossrow:last-child{border-bottom:none;}
   .lossrow.losstot{background:var(--brassBg);}
   .lossyr{font-size:13px;font-weight:500;}
+  .bractions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--hairSoft);}
+  .brcustom{width:100%;}
+  .brcbasis{flex:1;min-width:180px;font-family:inherit;font-size:12.5px;color:var(--ink);
+    padding:7px 10px;border:1px solid var(--hair);border-radius:7px;background:#fff;}
+  .brcbasis:focus{outline:none;border-color:var(--brass);}
+  .brconfirmed{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ok);}
 
   /* reconcile */
   .stats{display:flex;gap:12px;margin-bottom:16px;}
@@ -718,7 +724,10 @@ const STEPS=[
 
 /* ── state (kiçik router) ──
    view: landing · how · about · contact · login · register · app · audit */
-const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null,declStep:1,mfEdits:{},mfGen:{},clsAmt:{},clsDel:{}};
+const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null,declStep:1,mfEdits:{},mfGen:{},clsAmt:{},clsDel:{},brResolve:{},brConfirm:{},brCustom:null};
+// Uyğunsuzluq həlli/təsdiqi köməkçiləri
+function brRes(pid,id){ return (state.brResolve[pid]||{})[id]; }
+function brConf(pid,id){ return !!(state.brConfirm[pid]||{})[id]; }
 // Ümumi məlumat seçim variantları
 const MF_OPTIONS={
   uchot:['hesablama metodu','kassa metodu'],
@@ -750,7 +759,7 @@ function openPeriod(id){
 }
 const period=()=>PERIODS.find(p=>p.id===state.periodId);
 const results=()=>period().bridges.map(runBridge);
-const flaggedCount=()=>results().filter(r=>r.flagged).length;
+const flaggedCount=()=>results().filter(r=>r.flagged&&!brRes(state.periodId,r.id)).length;
 
 /* ── helpers ── */
 function pill(text,c,bg){return `<span class="pill" style="color:${C(c)};background:${C(bg)};border-color:${C(c)}33">${text}</span>`;}
@@ -1010,43 +1019,83 @@ function viewClassify(){
       </div>
       <p style="font-size:11.5px;color:${C('inkFaint')};margin-top:12px">Silinən və ya azaldılan çıxılan xərclər vergi tutulan mənfəəti artırır; əvvəlki illərin zərəri isə azaldır — Bəyannamə addımında əks olunur.</p>`;
 }
+function autoBasis(b){
+  const m={vat:'ƏDV ilə mənfəət gəliri arasında vaxt fərqi — avans və əvəzləşmə düzəlişi (VM 164/166?)',dsmf:'DSMF bazasına cəlb olunmayan ödənişlər üzrə düzəliş',loss:'Zərərin köçürülməsi qaydası üzrə düzəliş (VM 121?)',eqaime:'Ləğv/korrektə edilmiş qaimələr üzrə düzəliş'};
+  return (m[b.id]||'Bilinən qanuni düzəliş')+' — avtomatik tətbiq olundu';
+}
 function bridge(b){
-  const flagged=b.flagged;
-  const sc=flagged?C('flag'):C('ok'), sbg=flagged?C('flagBg'):C('okBg');
+  const pid=state.periodId, flagged=b.flagged;
+  const res=brRes(pid,b.id), conf=brConf(pid,b.id);
+  const resolved=!flagged||!!res;
+  const effResidual=res?round2(Math.abs(b.residual)-res.amount):Math.abs(b.residual);
+  const sc=resolved?C('ok'):C('flag'), sbg=resolved?C('okBg'):C('flagBg');
   const lines=b.lines.map(l=>`<div class="bline">${brow(l.label,l.value,{muted:true})}<div class="basis">${l.basis}</div></div>`).join('');
-  const verdictMsg=flagged?(b.note||'Bu məbləğ bilinən qanuni düzəlişlərlə izah olunmur — təqdimatdan əvvəl yoxlanmalıdır.'):'';
+  const adjVal=res?-(b.residual<0?-1:1)*res.amount:0;
+  const resLine=res?`<div class="bline">${brow('(±) '+(res.type==='auto'?'Avtomatik qanuni düzəliş':'Mühasibin izahı'),adjVal,{muted:true})}<div class="basis">${res.basis||''}</div></div>`:'';
+  const headPill=resolved?pill(!flagged?'Uzlaşdı':'Həll olundu','ok','okBg'):pill(`İzahsız ${azn(effResidual)}`,'flag','flagBg');
+  let action='';
+  if(flagged&&!res){
+    if(state.brCustom===b.id){
+      action=`<div class="bractions brcustom">
+        <input class="clsinput" data-brcamt="${b.id}" value="${fmt2(Math.abs(b.residual))}" inputmode="decimal" />
+        <input class="brcbasis" data-brcbasis="${b.id}" placeholder="İzahın hüquqi əsası / qeyd" />
+        <button class="dbtn" data-brcapply="${b.id}">Tətbiq et</button>
+        <button class="dbtn ghost" data-brccancel>Ləğv</button></div>`;
+    } else {
+      action=`<div class="bractions">
+        <button class="dbtn" data-brauto="${b.id}">${svg(I.scale,{size:13,color:'#fff'})} Avtomatik qanuni düzəliş</button>
+        <button class="dbtn ghost" data-brcustomopen="${b.id}">${svg(I.scan,{size:13,color:C('inkSoft')})} Öz izahımı əlavə et</button></div>`;
+    }
+  } else {
+    action=conf
+      ? `<div class="bractions"><span class="brconfirmed">${svg(I.check,{size:14,color:C('ok')})} Təsdiqləndi</span><button class="dbtn ghost" data-brunconfirm="${b.id}">Geri al</button></div>`
+      : `<div class="bractions"><button class="dbtn" data-brconfirm="${b.id}">${svg(I.check,{size:13,color:'#fff'})} Bu uyğunsuzluğu təsdiqlə</button>${res?`<button class="dbtn ghost" data-brreset="${b.id}">Düzəlişi ləğv et</button>`:''}</div>`;
+  }
+  const verdictLabel=resolved?(conf?'Təsdiqləndi':'İzah olundu — təsdiq gözləyir'):'İzah olunmayan qalıq';
+  const verdictMsg=!resolved?(b.note||'Bu məbləğ bilinən qanuni düzəlişlərlə izah olunmur — təqdimatdan əvvəl yoxlanmalıdır.'):'';
   return `<div class="card">
     <div class="bhead">
-      <div class="t">${flagged?svg(I.warn,{size:17,color:C('flag')}):svg(I.ok,{size:17,color:C('ok')})}${b.title}</div>
-      ${pill(flagged?`İzahsız ${azn(Math.abs(b.residual))}`:'Uzlaşdı',flagged?'flag':'ok',flagged?'flagBg':'okBg')}
+      <div class="t">${resolved?svg(I.ok,{size:17,color:C('ok')}):svg(I.warn,{size:17,color:C('flag')})}${b.title}</div>
+      ${headPill}
     </div>
     <div class="bbody">
       ${brow(b.start.label,b.start.value,{strong:true})}
-      ${lines}
+      ${lines}${resLine}
       <div class="bsep">${brow(b.expectedLabel,b.expected,{accent:true})}</div>
       <div style="margin-top:6px">${brow(b.actual.label,b.actual.value)}</div>
       <div class="verdict" style="background:${sbg}">
-        <div style="margin-top:1px">${flagged?svg(I.warn,{size:16,color:C('flag')}):svg(I.check,{size:16,color:C('ok')})}</div>
+        <div style="margin-top:1px">${resolved?svg(I.check,{size:16,color:C('ok')}):svg(I.warn,{size:16,color:C('flag')})}</div>
         <div style="flex:1">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-            <span class="vt" style="color:${sc}">${flagged?'İzah olunmayan qalıq':'Tam izah olundu'}</span>
-            <span class="vn" style="color:${sc}">${azn(Math.abs(b.residual))}</span>
+            <span class="vt" style="color:${sc}">${verdictLabel}</span>
+            <span class="vn" style="color:${sc}">${azn(effResidual)}</span>
           </div>
           ${verdictMsg?`<p>${verdictMsg}</p>`:''}
         </div>
       </div>
+      ${action}
     </div>
   </div>`;
 }
 function viewReconcile(){
-  const rs=results();const f=rs.filter(r=>r.flagged).length;
+  const rs=results(), pid=state.periodId;
+  const openF=rs.filter(r=>r.flagged&&!brRes(pid,r.id)).length;
+  const confN=rs.filter(r=>brConf(pid,r.id)).length;
+  const allConf=rs.length>0&&rs.every(r=>brConf(pid,r.id));
   const stats=`<div class="stats">
     <div class="stat"><div class="v" style="color:${C('ink')}">${rs.length}</div><div class="l">körpü</div></div>
-    <div class="stat"><div class="v" style="color:${C('flag')}">${f}</div><div class="l">bayraq</div></div>
-    <div class="stat"><div class="v" style="color:${C('ok')}">${rs.length-f}</div><div class="l">uzlaşdı</div></div>
+    <div class="stat"><div class="v" style="color:${openF?C('flag'):C('ok')}">${openF}</div><div class="l">açıq bayraq</div></div>
+    <div class="stat"><div class="v" style="color:${C('ok')}">${confN}</div><div class="l">təsdiqləndi</div></div>
   </div>`;
-  return vhead('03','Uyğunsuzluq auditi','Hər körpü bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayır.')
-    +stats+`<div class="bridges">${rs.map(bridge).join('')}</div>`;
+  const status=allConf
+    ? `<span style="color:${C('ok')};display:inline-flex;align-items:center;gap:6px">${svg(I.check,{size:14,color:C('ok')})} Bütün uyğunsuzluqlar təsdiqləndi</span>`
+    : `<span style="color:${C('review')}">${confN} / ${rs.length} uyğunsuzluq təsdiqləndi${openF?` · ${openF} açıq bayraq həll olunmalıdır`:''}</span>`;
+  return vhead('03','Uyğunsuzluq auditi','Hər körpü bir rəqəmdən başlayır, bilinən qanuni düzəlişləri tətbiq edir və yalnız izah olunmayan qalığı bayraqlayır. Hər bayraq üçün avtomatik qanuni düzəliş və ya öz izahını seç, sonra təsdiqlə.')
+    +stats+`<div class="bridges">${rs.map(bridge).join('')}</div>
+      <div class="clsactions" style="margin-top:16px">
+        <div class="clsstatus">${status}</div>
+        <div class="clsbtns"><button class="dbtn" data-brconfirmall ${allConf?'':'disabled'}>${svg(I.check,{size:14,color:'#fff'})} Ümumi təsdiq et və bəyannaməyə keç ${svg(I.arrowR,{size:14,color:'#fff'})}</button></div>
+      </div>`;
 }
 // Mənfəət bəyannaməsi — rəsmi MENFEET_1 formatı göstərici kodları (bax: docs/06).
 // Vergi tutulan mənfəət = gəlir − çıxılan xərclər + vergi düzəlişi (işarəli) − istifadə olunan zərər.
@@ -1988,6 +2037,22 @@ document.addEventListener('click',e=>{
   if(clsdel){const pid=state.periodId,i=clsdel.dataset.clsdel;(state.clsDel[pid]=state.clsDel[pid]||{})[i]=true;delete state.confirmed[i];render();return;}
   const clsrestore=e.target.closest('[data-clsrestore]');
   if(clsrestore){state.clsDel[state.periodId]={};render();return;}
+  const brauto=e.target.closest('[data-brauto]');
+  if(brauto){const pid=state.periodId,id=brauto.dataset.brauto;const b=results().find(x=>x.id===id);(state.brResolve[pid]=state.brResolve[pid]||{})[id]={type:'auto',amount:Math.abs(b.residual),basis:autoBasis(b)};state.brCustom=null;render();return;}
+  const brco=e.target.closest('[data-brcustomopen]');
+  if(brco){state.brCustom=brco.dataset.brcustomopen;render();return;}
+  const brcc=e.target.closest('[data-brccancel]');
+  if(brcc){state.brCustom=null;render();return;}
+  const brca=e.target.closest('[data-brcapply]');
+  if(brca){const pid=state.periodId,id=brca.dataset.brcapply;const amtEl=document.querySelector(`[data-brcamt="${id}"]`),bsEl=document.querySelector(`[data-brcbasis="${id}"]`);const amount=amtEl?parseNum(amtEl.value):0;const basis=(bsEl&&bsEl.value.trim())||'Mühasibin izahı';(state.brResolve[pid]=state.brResolve[pid]||{})[id]={type:'custom',amount,basis};state.brCustom=null;render();return;}
+  const brconfirm=e.target.closest('[data-brconfirm]');
+  if(brconfirm){const pid=state.periodId,id=brconfirm.dataset.brconfirm;(state.brConfirm[pid]=state.brConfirm[pid]||{})[id]=true;render();return;}
+  const brunc=e.target.closest('[data-brunconfirm]');
+  if(brunc){const pid=state.periodId;if(state.brConfirm[pid])delete state.brConfirm[pid][brunc.dataset.brunconfirm];render();return;}
+  const brreset=e.target.closest('[data-brreset]');
+  if(brreset){const pid=state.periodId,id=brreset.dataset.brreset;if(state.brResolve[pid])delete state.brResolve[pid][id];if(state.brConfirm[pid])delete state.brConfirm[pid][id];render();return;}
+  const brall=e.target.closest('[data-brconfirmall]');
+  if(brall){if(brall.hasAttribute('disabled'))return;state.step='declare';window.scrollTo(0,0);render();return;}
   const pr=e.target.closest('[data-prof]');
   if(pr){const k=pr.dataset.prof;state.profile[k]=!state.profile[k];render();return;}
   const rm=e.target.closest('[data-remove]');
