@@ -375,6 +375,14 @@
   .mf-k{font-size:12.5px;color:var(--ink);}
   .mf-v{font-size:12.5px;font-weight:500;}
   .mf-vbox{font-size:12.5px;color:var(--inkSoft);background:#fff;border:1px solid var(--hair);border-radius:8px;padding:8px 12px;}
+  .mf-select{font-family:inherit;font-size:12.5px;color:var(--ink);background:#fff;border:1px solid var(--hair);border-radius:8px;padding:8px 12px;cursor:pointer;width:100%;max-width:520px;}
+  .mf-select:focus{outline:none;border-color:var(--brass);}
+  .mf-edithint{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--inkSoft);margin-bottom:10px;}
+  .mf-input{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink);text-align:right;
+    width:120px;max-width:100%;padding:5px 8px;border:1px solid var(--hair);border-radius:6px;background:#fff;transition:border-color .12s;}
+  .mf-input:hover{border-color:var(--inkFaint);}
+  .mf-input:focus{outline:none;border-color:var(--brass);background:var(--paper);}
+  .mf-strong .mf-input{font-weight:700;border-color:var(--brass)55;}
   .mf-tablewrap{overflow-x:auto;border:1px solid var(--hair);border-radius:10px;background:#fff;}
   .mf-table{width:100%;border-collapse:collapse;font-size:12px;}
   .mf-table thead th{background:var(--hairSoft);color:var(--inkSoft);font-weight:600;font-size:11px;text-align:left;
@@ -695,7 +703,22 @@ const STEPS=[
 
 /* ── state (kiçik router) ──
    view: landing · how · about · contact · login · register · app · audit */
-const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null,declStep:1};
+const state={view:'landing',authed:false,periodId:null,step:'reconcile',confirmed:{},uploads:{},profile:{},pendingDoc:null,declStep:1,mfEdits:{},mfGen:{}};
+// Ümumi məlumat seçim variantları
+const MF_OPTIONS={
+  uchot:['hesablama metodu','kassa metodu'],
+  group:['Vergi Məcəlləsi çərçivəsində fəaliyyət göstərən vergi ödəyicisi','Hasilatın Pay bölgüsü'],
+  meyar:['Mikro','Kiçik','Orta','İRİ'],
+};
+function mfGenFor(pid){
+  if(!state.mfGen[pid]) state.mfGen[pid]={uchot:'hesablama metodu',group:MF_OPTIONS.group[0],meyar:'Kiçik'};
+  return state.mfGen[pid];
+}
+function parseNum(v){
+  v=String(v).trim().replace(/[  ]/g,'');
+  if(v.includes(',')) v=v.replace(/\./g,'').replace(',','.');
+  const n=parseFloat(v); return isNaN(n)?0:n;
+}
 const PUBLIC_VIEWS=['landing','how','about','contact'];
 const AUTH_VIEWS=['login','register'];
 function go(v){
@@ -1424,18 +1447,25 @@ function downloadMenfeetXML(){
 }
 
 /* ── rəsmi forma renderi ── */
-function mfRow2(r){ // [code,name,val,strongFlag(1=cəm,2=faiz)]
-  const strong=r[3]===1, pct=r[3]===2;
-  return `<tr class="${strong?'mf-strong':''}"><td class="mf-code">${r[0]}</td><td class="mf-name">${r[1]}</td><td class="mf-val">${pct?fmt2(r[2]).replace(',00',',00'):fmt2(r[2])}</td></tr>`;
+function mfEditHint(){ return `<div class="mf-edithint">${svg(I.scan,{size:12,color:C('brass')})} Xanalar redaktə edilə bilər — məbləği dəyişmək üçün rəqəmin üzərinə klikləyin.</div>`; }
+function mfRow2(r,editable){ // [code,name,val,strongFlag(1=cəm,2=faiz)]
+  const strong=r[3]===1;
+  const cell=editable
+    ? `<input class="mf-input" data-mfedit="${r[0]}" value="${fmt2(r[2])}" inputmode="decimal" />`
+    : fmt2(r[2]);
+  return `<tr class="${strong?'mf-strong':''}"><td class="mf-code">${r[0]}</td><td class="mf-name">${r[1]}</td><td class="mf-val">${cell}</td></tr>`;
 }
-function mfTable2(rows,head='Məbləğ'){
-  return `<div class="mf-tablewrap"><table class="mf-table"><thead><tr><th class="mf-code">Göstəricilər</th><th></th><th class="mf-val">${head}</th></tr></thead><tbody>${rows.map(mfRow2).join('')}</tbody></table></div>`;
+function mfTable2(rows,head='Məbləğ',editable){
+  return `<div class="mf-tablewrap"><table class="mf-table"><thead><tr><th class="mf-code">Göstəricilər</th><th></th><th class="mf-val">${head}</th></tr></thead><tbody>${rows.map(r=>mfRow2(r,editable)).join('')}</tbody></table></div>`;
 }
-function mfTable6(rows){
+function mfTable6(rows,editable){
   const cols=['Hesabat dövrünün əvvəlinə','Dövr üzrə daxil olmuşdur','Təqdim edilmişdir','Silinmişdir','Ləğv edilmişdir','Hesabat dövrünün sonuna'];
   const body=rows.map(r=>{
     const strong=r[8]===1;
-    return `<tr class="${strong?'mf-strong':''}"><td class="mf-code">${r[0]}</td><td class="mf-name">${r[1]}</td>${[2,3,4,5,6,7].map(i=>`<td class="mf-val">${fmt2(r[i])}</td>`).join('')}</tr>`;
+    const cells=[2,3,4,5,6,7].map(i=>editable
+      ? `<td class="mf-val"><input class="mf-input" data-mfedit="${r[0]}:${i}" value="${fmt2(r[i])}" inputmode="decimal" /></td>`
+      : `<td class="mf-val">${fmt2(r[i])}</td>`).join('');
+    return `<tr class="${strong?'mf-strong':''}"><td class="mf-code">${r[0]}</td><td class="mf-name">${r[1]}</td>${cells}</tr>`;
   }).join('');
   return `<div class="mf-tablewrap"><table class="mf-table mf-table6"><thead><tr><th class="mf-code">Göstəricilər</th><th></th>${cols.map(c=>`<th class="mf-val">${c}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
@@ -1447,7 +1477,8 @@ function mfDataFor(p){
     ['Vergi ödəyicisinin tam adı',p.company],
     ['Əsas fəaliyyət növü',p.activity||'—'],
   ];
-  if(p.eliteFull) return {general,income:MF_INCOME,expense:MF_EXPENSE,taxcalc:MF_TAXCALC,balance:MF_BALANCE,exemptInc:MF_EXEMPT_INC,exemptProfit:MF_EXEMPT_PROFIT,summary:MF_SUMMARY};
+  let income,expense,taxcalc,balance,summary;
+  if(p.eliteFull){ income=MF_INCOME;expense=MF_EXPENSE;taxcalc=MF_TAXCALC;balance=MF_BALANCE;summary=MF_SUMMARY; return mfApplyEdits(p,{general,income,expense,taxcalc,balance,summary}); }
   const di=p.declInput, rate=di.rate||0.20, r2=n=>Math.round(n*100)/100;
   const expTotal=r2(di.deductible-di.taxAdjust);
   const base=r2(di.revenue-expTotal);
@@ -1455,7 +1486,7 @@ function mfDataFor(p){
   const t241=Math.max(0,r2(profit237-di.lossUsed));
   const tax=r2(t241*rate);
   const incOv={'200':di.revenue,'200.2':di.revenue,'218':di.revenue,'220':di.revenue};
-  const income=MF_INCOME.map(r=>[r[0],r[1],incOv[r[0]]!==undefined?incOv[r[0]]:0,r[3]]);
+  income=MF_INCOME.map(r=>[r[0],r[1],incOv[r[0]]!==undefined?incOv[r[0]]:0,r[3]]);
   const catMap={'Əməkhaqqı':'221.1','İcarə':'221.5','Kommunal':'221.10','Reklam':'221.14','Xammal və materiallar':'221.3','Material':'221.3','Material / mal dəyəri':'221.3','Subpodrat':'221.15','Sair istehsal xərcləri':'221.15','Amortizasiya':'227','Ezamiyyə':'221.6','Nəqliyyat':'229'};
   const expOv={}; let mapped=0;
   (p.classify||[]).forEach(c=>{ if(c.s==='nondeduct')return; const code=catMap[c.name]; if(code){expOv[code]=(expOv[code]||0)+c.amount; mapped+=c.amount;} });
@@ -1464,32 +1495,46 @@ function mfDataFor(p){
   if(expOv['221.5']){expOv['221.5.1']=expOv['221.5'];expOv['221.5.1.2']=expOv['221.5'];}
   if(expOv['227']) expOv['227.2']=expOv['227'];
   expOv['221']=expTotal; expOv['234']=expTotal; expOv['236']=expTotal;
-  const expense=MF_EXPENSE.map(r=>[r[0],r[1],expOv[r[0]]!==undefined?expOv[r[0]]:0,r[3]]);
+  expense=MF_EXPENSE.map(r=>[r[0],r[1],expOv[r[0]]!==undefined?expOv[r[0]]:0,r[3]]);
   const tcOv={'237':profit237,'239':zerer239,'240':di.lossUsed,'241':t241,'242':rate*100,'243':tax,'245':tax};
-  const taxcalc=MF_TAXCALC.map(r=>[r[0],r[1],tcOv[r[0]]!==undefined?tcOv[r[0]]:0,r[3]]);
-  const balance=MF_BALANCE.map(r=>[r[0],r[1],0,0,0,0,0,0,r[8]]);
+  taxcalc=MF_TAXCALC.map(r=>[r[0],r[1],tcOv[r[0]]!==undefined?tcOv[r[0]]:0,r[3]]);
+  balance=MF_BALANCE.map(r=>[r[0],r[1],0,0,0,0,0,0,r[8]]);
   const sumOv={'245':tax,'243':tax,'241':t241,'237':profit237,'242':rate*100};
-  const summary=MF_SUMMARY.map(r=>[r[0],r[1],sumOv[r[0]]!==undefined?sumOv[r[0]]:0,r[3]]);
-  return {general,income,expense,taxcalc,balance,exemptInc:MF_EXEMPT_INC,exemptProfit:MF_EXEMPT_PROFIT,summary};
+  summary=MF_SUMMARY.map(r=>[r[0],r[1],sumOv[r[0]]!==undefined?sumOv[r[0]]:0,r[3]]);
+  return mfApplyEdits(p,{general,income,expense,taxcalc,balance,summary});
+}
+// Redaktə overlay — Gəlir/Xərc/Balans/Əlavə5 xanalarında istifadəçi dəyişikliyi
+function mfApplyEdits(p,d){
+  const E=state.mfEdits[p.id]||{};
+  const ap2=arr=>arr.map(r=>E[r[0]]!==undefined?[r[0],r[1],E[r[0]],r[3]]:r);
+  const ap6=arr=>arr.map(r=>{const nr=r.slice(); for(let i=2;i<=7;i++){const k=r[0]+':'+i; if(E[k]!==undefined)nr[i]=E[k];} return nr;});
+  return {general:d.general,income:ap2(d.income),expense:ap2(d.expense),taxcalc:d.taxcalc,
+    balance:ap6(d.balance),exemptInc:ap2(MF_EXEMPT_INC),exemptProfit:ap2(MF_EXEMPT_PROFIT),summary:d.summary};
 }
 function mfStepContent(){
   const s=state.declStep, D=mfDataFor(period());
   if(s===1){
+    const g=mfGenFor(period().id);
+    const sel=(key,label)=>`<div class="mf-kvrow"><span class="mf-k">${label}</span>
+      <select class="mf-select" data-mfgen="${key}">${MF_OPTIONS[key].map(o=>`<option ${o===g[key]?'selected':''}>${o}</option>`).join('')}</select></div>`;
     return `<h2 class="mf-h">Ümumi məlumat</h2>
       <label class="mf-check"><input type="checkbox" disabled/> Bəyan ediləcək məlumatım yoxdur</label>
       <div class="mf-kv">${D.general.map(([k,v])=>`<div class="mf-kvrow"><span class="mf-k">${k}</span><span class="mf-v">${v}</span></div>`).join('')}</div>
-      <div class="mf-kv mf-kv2">${MF_GENERAL2.map(([k,v])=>`<div class="mf-kvrow"><span class="mf-k">${k}</span><span class="mf-vbox">${v}</span></div>`).join('')}
+      <div class="mf-kv mf-kv2">
+        ${sel('uchot','Uçot metodu')}
+        ${sel('group','Vergi ödəyicisinin qrupu')}
+        ${sel('meyar','Sahibkarlıq subyektinin meyarı')}
         <div class="mf-kvrow"><span class="mf-k">Vergi agenti olması barədə qeyd</span><span><input type="checkbox" disabled/></span></div></div>`;
   }
-  if(s===2) return `<h2 class="mf-h">Hesabat dövrünün G Ə L İ R L Ə R İ (ƏDV, aksiz və yol vergisi nəzərə alınmadan)</h2>`+mfTable2(D.income);
-  if(s===3) return `<h2 class="mf-h">Hesabat dövründə gəlirlərin əldə edilməsi ilə bağlı Xərclər</h2>`+mfTable2(D.expense);
+  if(s===2) return `<h2 class="mf-h">Hesabat dövrünün G Ə L İ R L Ə R İ (ƏDV, aksiz və yol vergisi nəzərə alınmadan)</h2>${mfEditHint()}`+mfTable2(D.income,'Məbləğ',true);
+  if(s===3) return `<h2 class="mf-h">Hesabat dövründə gəlirlərin əldə edilməsi ilə bağlı Xərclər</h2>${mfEditHint()}`+mfTable2(D.expense,'Məbləğ',true);
   if(s===4) return `<h2 class="mf-h">Hesabat dövrü üçün verginin hesablanması</h2>`+mfTable2(D.taxcalc);
-  if(s===5) return `<div class="mf-sub">Əlavə 1</div><h2 class="mf-h">Vergi uçotunun məqsədləri üçün aktivlər, öhdəliklər və kapitallar barədə məlumat</h2>`+mfTable6(D.balance);
+  if(s===5) return `<div class="mf-sub">Əlavə 1</div><h2 class="mf-h">Vergi uçotunun məqsədləri üçün aktivlər, öhdəliklər və kapitallar barədə məlumat</h2>${mfEditHint()}`+mfTable6(D.balance,true);
   if(s===6) return `<div class="mf-sub">Əlavə 2</div><h2 class="mf-h">Vergi ödəyicisinin xaricdə olan bank hesabları barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
   if(s===7) return `<div class="mf-sub">Əlavə 3</div><h2 class="mf-h">Vergi ödəyicisinin ümidsiz borcları barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
   if(s===8) return `<div class="mf-sub">Əlavə 4</div><h2 class="mf-h">Obyektlər barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
-  if(s===9) return `<div class="mf-sub">Əlavə 5</div><h2 class="mf-h">Gəlirlər üzrə azadolmalar barədə məlumat</h2>`+mfTable2(D.exemptInc,'Məbləğ, manatla')
-    +`<h2 class="mf-h" style="margin-top:24px">Mənfəət üzrə güzəştlər barədə məlumat</h2>`+mfTable2(D.exemptProfit,'Məbləğ, manatla');
+  if(s===9) return `<div class="mf-sub">Əlavə 5</div><h2 class="mf-h">Gəlirlər üzrə azadolmalar barədə məlumat</h2>${mfEditHint()}`+mfTable2(D.exemptInc,'Məbləğ, manatla',true)
+    +`<h2 class="mf-h" style="margin-top:24px">Mənfəət üzrə güzəştlər barədə məlumat</h2>`+mfTable2(D.exemptProfit,'Məbləğ, manatla',true);
   if(s===10) return `<div class="mf-sub">Əlavə 7</div><h2 class="mf-h">Sahibkarlıq fəaliyyəti üzrə xarici ölkələrdə əldə edilmiş gəlirlər üzrə, ödənilmiş və nəzərə alınan gəlir vergisinin məbləği barədə məlumat</h2><div class="mf-empty">Bu bölmə üzrə bəyan ediləcək məlumat yoxdur.</div>`;
   if(s===11){
     const rows=D.summary.map(r=>`<tr class="${r[3]===1?'mf-sumchild':''}"><td class="mf-code"><span class="mf-codebox">${r[0]}</span></td><td class="mf-name">${r[1]}</td><td class="mf-val">${fmt2(r[2])}</td></tr>`).join('');
@@ -1538,7 +1583,7 @@ function viewDeclForm(){
   </div>`;
 }
 function viewDeclare(){
-  const {loss,cells}=buildDeclaration(period().declInput);
+  const {profit,loss,tax,cells}=buildDeclaration(period().declInput);
   const secOrder=['Gəlir','Xərclər','Düzəlişlər','Vergi hesabı'];
   const rows=secOrder.map(sec=>{
     const items=cells.filter(c=>c.sec===sec);
@@ -1557,7 +1602,11 @@ function viewDeclare(){
   const notice=loss>0
     ? `Bu dövr <b>zərərlə</b> bağlanır (${azn2(loss)}) — mənfəət vergisi 0. Zərər (3002) növbəti illərə köçürülə bilər (5 il · VM 121?).`
     : period().declareNotice;
-  return vhead('04','Bəyannamə xanaları — MENFEET_1','Rəqəmlər rəsmi mənfəət bəyannaməsi (MENFEET_1) göstərici kodlarına uyğun formalaşır. Vergi tutulan mənfəət/zərər deterministik hesablanır; hər xana mənbəyə qədər izlənə bilər.')
+  const p=period();
+  const icmal=loss>0
+    ? `${p.company} · ${p.periodLabel}. Ümumi gəlir ${azn2(p.declInput.revenue)}, gəlirdən çıxılan xərclər ${azn2(p.declInput.deductible)}. Nəticə: <b>zərər ${azn2(loss)}</b> — mənfəət vergisi 0.`
+    : `${p.company} · ${p.periodLabel}. Ümumi gəlir ${azn2(p.declInput.revenue)}, gəlirdən çıxılan xərclər ${azn2(p.declInput.deductible)}. Vergi tutulan mənfəət <b>${azn2(profit)}</b>, hesablanmış mənfəət vergisi <b>${azn2(tax)}</b>.`;
+  return vhead('04','Bəyannamə üzrə icmal',icmal)
     +`<div class="card">${rows}</div>
       <div class="clsactions" style="margin-top:14px">
         <div class="clsstatus" style="color:${C('inkSoft')}">Rəsmi forma: 11 addım · gəlir/xərc/balans/əlavələr</div>
@@ -1859,6 +1908,13 @@ document.getElementById('filepick').addEventListener('change',e=>{
     state.uploads[state.pendingDoc]={name:f.name,size:f.size,meta:'Əlavə edildi · analiz gözləyir',review:false};
     state.pendingDoc=null;render();
   }
+});
+// MENFEET forma: xana redaktəsi və Ümumi məlumat seçimləri (re-render yoxdur — fokus/scroll qorunur)
+document.addEventListener('change',e=>{
+  const ed=e.target.closest('[data-mfedit]');
+  if(ed){ const pid=state.periodId; (state.mfEdits[pid]=state.mfEdits[pid]||{})[ed.dataset.mfedit]=parseNum(ed.value); ed.value=fmt2(parseNum(ed.value)); return; }
+  const gn=e.target.closest('[data-mfgen]');
+  if(gn){ mfGenFor(state.periodId)[gn.dataset.mfgen]=gn.value; return; }
 });
 render();
 </script>
