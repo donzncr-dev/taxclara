@@ -185,6 +185,18 @@
   .crow .cn .t{font-weight:500;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .crow .cn .norm{font-size:11px;color:var(--inkFaint);margin-top:2px;}
   .normtag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--review);}
+  .normcalc{margin-top:6px;background:var(--paper);border:1px solid var(--hairSoft);border-radius:8px;padding:8px 10px;}
+  .normgrid{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--inkSoft);}
+  .normgrid b{color:var(--ink);font-variant-numeric:tabular-nums;}
+  .normmeta{font-size:10.5px;color:var(--inkFaint);margin-top:5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .normmeta b{color:var(--brass);}
+  .normcalcl{font-size:10.5px;color:var(--inkFaint);margin-top:3px;font-family:var(--font-mono);}
+  .vflag2{display:inline-flex;align-items:center;gap:3px;color:var(--review);background:var(--reviewBg);border-radius:4px;padding:0 5px;}
+  .rulerow{display:flex;flex-direction:column;gap:5px;padding:12px 16px;border-bottom:1px solid var(--hairSoft);font-size:11.5px;}
+  .rulerow:last-child{border-bottom:none;}
+  .rulerow .rid{font-family:var(--font-mono);font-weight:600;color:var(--brass);font-size:12px;}
+  .rulefields{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--inkSoft);}
+  .rulefields span b{color:var(--ink);}
   .amt{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--inkSoft);}
   .clsinput{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--ink);text-align:right;
     width:110px;padding:5px 8px;border:1px solid var(--hair);border-radius:6px;background:#fff;transition:border-color .12s;}
@@ -549,8 +561,8 @@ const PERIODS=[{
    {name:'İcarə',amount:48000,s:'deduct'},
    {name:'Kommunal',amount:12400,s:'deduct'},
    {name:'Reklam',amount:21000,s:'deduct'},
-   {name:'Təmsilçilik',amount:9800,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır'},
-   {name:'Ezamiyyə',amount:6300,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır'},
+   {name:'Təmsilçilik',amount:9800,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır',normRule:{ruleId:'REP-INCOME-1PCT-2025'}},
+   {name:'Ezamiyyə',amount:6300,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır',normRule:{ruleId:'TRAVEL-DAILY-2025',days:45}},
    {name:'Cərimə/faiz (büdcə)',amount:3100,s:'nondeduct'},
    {name:'Amortizasiya',amount:27400,s:'adjust',norm:'Mühasibat ≠ vergi amortizasiyası — düzəliş'},
   ],
@@ -601,7 +613,7 @@ const PERIODS=[{
    {name:'Əməkhaqqı',amount:142000,s:'deduct'},
    {name:'Subpodrat',amount:210000,s:'deduct'},
    {name:'Material',amount:96000,s:'deduct'},
-   {name:'Təmsilçilik',amount:5200,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır'},
+   {name:'Təmsilçilik',amount:5200,s:'limit',norm:'Gəlirin 1%-i həddi (NK norması) yoxlanmalıdır',normRule:{ruleId:'REP-INCOME-1PCT-2025'}},
   ],
   bridges:[
    {id:'dsmf',title:'Əməkhaqqı fondu ↔ DSMF bazası',
@@ -636,7 +648,7 @@ const PERIODS=[{
    {name:'Əməkhaqqı',amount:98000,s:'deduct'},
    {name:'İcarə',amount:36000,s:'deduct'},
    {name:'Kommunal',amount:9400,s:'deduct'},
-   {name:'Ezamiyyə',amount:4100,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır'},
+   {name:'Ezamiyyə',amount:4100,s:'limit',norm:'Gündəlik norma həddi (NK qərarı) yoxlanmalıdır',normRule:{ruleId:'TRAVEL-DAILY-2025',days:30}},
   ],
   bridges:[
    {id:'eqaime',title:'e-Qaimələr ↔ ƏDV dövriyyəsi',
@@ -962,6 +974,25 @@ function viewSources(){
         <div class="clsbtns"><button class="dbtn" data-analyze ${miss>0?'disabled':''}>${svg(I.scan,{size:14,color:'#fff'})} Analizə keç ${svg(I.arrowR,{size:14,color:'#fff'})}</button></div>
       </div>`;
 }
+// Norma hesablamasının detallı göstərişi (istifadə/icazə/çıxılan/çıxılmayan + hüquqi əsas)
+function normBreakdown(p,i){
+  const n=normCalc(p,i), rule=n.rule;
+  const calcLine = rule
+    ? (rule.calculation_method==='daily_amount'
+        ? `${n.days} gün × ${azn(rule.parameter)}/gün = ${azn(n.allowed)}`
+        : `${n.baseLabel} ${azn(n.base)} × ${rule.parameter}% = ${azn(n.allowed)}`)
+    : '';
+  return `<div class="normcalc">
+    <div class="normgrid">
+      <span>Xərc: <b>${azn(n.used)}</b></span>
+      <span>İcazə verilən: <b style="color:${C('ok')}">${azn(n.allowed)}</b></span>
+      <span>Çıxılan: <b style="color:${C('ok')}">${azn(n.deductible)}</b></span>
+      <span>Çıxılmayan: <b style="color:${C(n.excess>0?'flag':'inkFaint')}">${azn(n.excess)}</b></span>
+    </div>
+    <div class="normmeta">${svg(I.scale,{size:11,color:C('brass')})} Hüquqi əsas: <b>${rule?rule.rule_id:'—'}</b>${rule?` · ${rule.article} · ${rule.effective_from}—${rule.effective_to}`:''}${rule&&!rule.verified?` <span class="vflag2">${svg(I.warn,{size:9,color:C('review')})} təsdiqlənməli</span>`:''}</div>
+    <div class="normcalcl">Hesablanma: ${calcLine}${n.excess>0?` · artıq ${azn(n.excess)} mənfəətə əlavə olunur`:''}</div>
+  </div>`;
+}
 function viewClassify(){
   const p=period(), pid=p.id, list=p.classify;
   const del=state.clsDel[pid]||{}, amtOv=state.clsAmt[pid]||{}, E=state.mfEdits[pid]||{};
@@ -981,8 +1012,8 @@ function viewClassify(){
     return `<div class="crow">
       <button class="chk ${on?'on':''}" data-toggle="${i}">${on?svg(I.check,{size:13,color:'#fff'}):''}</button>
       <div class="cn">
-        <div class="t">${r.name}${r.norm?`<span class="normtag">${svg(I.warn,{size:11,color:C('review')})} norma yoxlaması</span>`:''}</div>
-        ${r.norm?`<div class="norm">${r.norm}</div>`:''}
+        <div class="t">${r.name}${r.s==='limit'?`<span class="normtag">${svg(I.scale,{size:11,color:C('review')})} norma tətbiq olundu</span>`:''}</div>
+        ${r.s==='limit'?normBreakdown(p,i):(r.norm?`<div class="norm">${r.norm}</div>`:'')}
       </div>
       ${amtCell}
       ${pill(cl.l,cl.c,cl.bg)}
@@ -1010,6 +1041,17 @@ function viewClassify(){
       <div class="dsec">Əvvəlki illərin zərəri <span>— mənfəət hesabına köçürülür (5 il). Zərər yoxdursa 0 yazın.</span></div>
       <div class="card">${lossRows}
         <div class="lossrow losstot"><span class="lossyr">Cəmi köçürülən zərər</span><span class="amt" style="font-weight:600">${azn(lossTotal)}</span></div></div>
+      ${(()=>{ const used=[...new Set(list.filter(c=>c.normRule).map(c=>c.normRule.ruleId))].map(ruleById).filter(Boolean);
+        if(!used.length) return '';
+        return `<div class="dsec">Tətbiq olunan qaydalar <span>— Rule Engine · versiyalı (${MF_META.dovr})</span></div>
+        <div class="card">${used.map(r=>`<div class="rulerow">
+          <div class="rid">${r.rule_id}${!r.verified?` <span class="vflag2">${svg(I.warn,{size:9,color:C('review')})} təsdiqlənməli</span>`:''}</div>
+          <div class="rulefields">
+            <span>Vergi növü: <b>${r.tax_type}</b></span><span>Qüvvədə: <b>${r.effective_from} — ${r.effective_to}</b></span>
+            <span>Mənbə: <b>${r.source}</b></span><span>Maddə: <b>${r.article}</b></span>
+            <span>Parametr: <b>${r.param_label}</b></span><span>Hesablanma: <b>${r.calculation_method}</b></span>
+            <span>Yurisdiksiya: <b>${r.jurisdiction}</b></span><span>Status: <b>${r.status}</b></span>
+          </div></div>`).join('')}</div>`; })()}
       <div class="clsactions" style="margin-top:16px">
         <div class="clsstatus">${status}</div>
         <div class="clsbtns">
@@ -1568,9 +1610,43 @@ function mfTable6(rows,editable,computed){
    Hər redaktədən sonra asılı xanalar avtomatik yenidən hesablanır (deterministik).
    AGG: valideyn kodu = uşaq kodlarının cəmi. "O cümlədən" alt-sətirlər cəmə daxil deyil. */
 const round2=n=>Math.round(n*100)/100;
+/* ══ RULE ENGINE — versiyalı vergi qaydaları (deterministik) ══
+   Hər qayda: rule_id · tax_type · effective_from/to · source · article · parameter ·
+   calculation_method · jurisdiction · status · verified. Köhnə bəyannamə öz ilinin
+   qaydası ilə hesablanır (effective_from/to). Dəyər verified:false isə təsdiqlənməlidir. */
+const RULES=[
+  {rule_id:'REP-INCOME-1PCT-2025', tax_type:'PROFIT', effective_from:'2025-01-01', effective_to:'2025-12-31',
+   source:'e-qanun.az · Vergi Məcəlləsi', article:'VM 119?', jurisdiction:'AZ', status:'active', verified:false,
+   category:'Təmsilçilik', calculation_method:'percent_of_income', parameter:1, param_label:'Hesabat dövrü gəlirinin 1%-i', base_label:'Ümumi gəlir (200)'},
+  {rule_id:'TRAVEL-DAILY-2025', tax_type:'PROFIT', effective_from:'2025-01-01', effective_to:'2025-12-31',
+   source:'Nazirlər Kabineti qərarı', article:'NK · ezamiyyə normaları', jurisdiction:'AZ', status:'active', verified:false,
+   category:'Ezamiyyə', calculation_method:'daily_amount', parameter:120, param_label:'Gündəlik norma × gün sayı', base_label:'Ezamiyyə günləri'},
+];
+function ruleById(id){ return RULES.find(r=>r.rule_id===id); }
 // Təsnifat redaktələri (məhdudlaşan/çıxılmayan sətir dəyişikliyi/silinməsi) → effektiv çıxılan xərc
 function clsEffAmount(p,i){ const c=p.classify[i]; if((state.clsDel[p.id]||{})[i]) return 0; const a=(state.clsAmt[p.id]||{})[i]; return a!==undefined?a:c.amount; }
-function effDeductible(p){ let d=p.declInput.deductible; (p.classify||[]).forEach((c,i)=>{ if(c.s==='nondeduct')return; d+=clsEffAmount(p,i)-c.amount; }); return round2(d); }
+// Norma hesablaması: istifadə olunan / icazə verilən / çıxılan / artıq (çıxılmayan) + hüquqi əsas
+function normCalc(p,i){
+  const c=p.classify[i], amt=clsEffAmount(p,i), nm=c.normRule;
+  if(!nm) return {used:amt,allowed:amt,deductible:amt,excess:0,rule:null};
+  const rule=ruleById(nm.ruleId); let allowed=amt, base=0, baseLabel='';
+  if(rule){
+    if(rule.calculation_method==='percent_of_income'){ base=p.declInput.revenue||0; allowed=round2(base*rule.parameter/100); baseLabel=rule.base_label; }
+    else if(rule.calculation_method==='percent_of_base'){ base=nm.base||0; allowed=round2(base*rule.parameter/100); baseLabel=rule.base_label; }
+    else if(rule.calculation_method==='daily_amount'){ base=nm.days||0; allowed=round2(base*rule.parameter); baseLabel=rule.base_label; }
+  }
+  const deductible=round2(Math.min(amt,allowed)), excess=round2(Math.max(0,amt-allowed));
+  return {used:amt,allowed,deductible,excess,rule,base,baseLabel,days:nm.days};
+}
+// Bir təsnifat sətrinin çıxılan hissəsi (norma limiti + silinmə tətbiq olunmuş)
+function clsDeductible(p,i){
+  const c=p.classify[i];
+  if((state.clsDel[p.id]||{})[i]) return 0;
+  if(c.s==='nondeduct') return 0;
+  if(c.s==='limit') return normCalc(p,i).deductible;
+  return clsEffAmount(p,i);
+}
+function effDeductible(p){ let d=p.declInput.deductible; (p.classify||[]).forEach((c,i)=>{ if(c.s==='nondeduct')return; d+=clsDeductible(p,i)-c.amount; }); return round2(d); }
 function effLossUsed(p){ const E=state.mfEdits[p.id]||{}; let s=0; for(let n=1;n<=5;n++){const k='240.'+n; s+=(E[k]!==undefined?E[k]:(n===5?p.declInput.lossUsed:0));} return round2(s); }
 function effDI(p){ return {...p.declInput, deductible:effDeductible(p), lossUsed:effLossUsed(p)}; }
 const MF_INC_MAIN=['200','201','202','203','204','205','206','207','208','209','210','211','212','213','214','215','216','217'];
