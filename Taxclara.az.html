@@ -1038,6 +1038,14 @@ function viewClassify(){
     +`<div class="cprog"><b class="mono">${done}</b> / ${total} sətir təsdiqləndi</div>
       <div class="card">${rows}</div>
       ${deletedStrip}
+      ${(()=>{ const itemized=round2(activeIdx.reduce((s,i)=>s+(list[i].s==='nondeduct'?0:clsDeductible(p,i)),0));
+        const totalD=effDeductible(p), other=round2(totalD-itemized);
+        return `<div class="dsec">Çıxılan xərclərin icmalı <span>— bu ekrandakı sətirlər + baş kitabdan digər xərclər = bəyannamə rəqəmi</span></div>
+        <div class="card">
+          <div class="lossrow"><span class="lossyr">Bu ekranda icmal edilən (çıxılan hissə)</span><span class="amt">${azn(itemized)}</span></div>
+          <div class="lossrow"><span class="lossyr">Baş kitabdan digər çıxılan xərclər</span><span class="amt">${azn(other)}</span></div>
+          <div class="lossrow losstot"><span class="lossyr">Cəmi çıxılan xərc (bəyannamə · sət.236)</span><span class="amt" style="font-weight:600">${azn(totalD)}</span></div>
+        </div>`; })()}
       <div class="dsec">Əvvəlki illərin zərəri <span>— mənfəət hesabına köçürülür (5 il). Zərər yoxdursa 0 yazın.</span></div>
       <div class="card">${lossRows}
         <div class="lossrow losstot"><span class="lossyr">Cəmi köçürülən zərər</span><span class="amt" style="font-weight:600">${azn(lossTotal)}</span></div></div>
